@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import database.DataBaseErrors;
 import database.exceptions.CannotConnectToDatabaseException;
 import database.exceptions.QueryFailedException;
+import services.auth.AuthErrors;
 import services.errors.ServerErrors;
 import services.errors.ServletError;
 import utils.Debug;
@@ -19,29 +20,21 @@ import utils.Debug;
 public class ServicesTools {
 	//Common args name.
 	public final static String KEY_ARG			= "key";
-	public final static String IDORGA_ARG 		= "idorga";
 	public final static String IDUSER_ARG 		= "iduser";
 	public final static String USERNAME_ARG 	= "username";
 	public final static String PASSWORD_ARG 	= "password";
 	public final static String EMAIL_ARG 		= "email";
-	public final static String NAME_ARG 		= "name";
-	public final static String HOST_ARG 		= "host";
-	public final static String PORT_ARG 		= "port";
-	public final static String IDSERVER_ARG		= "idserver";
-	public final static String COMMAND_ARG 		= "command";
-	public final static String TIMEOUT_ARG 		= "timeout";
 	public final static String SIZE_ARG 		= "size";
 	public final static String PAGE_ARG 		= "page";
 	public final static String QUERY_ARG 		= "query";
-	public final static String CLIENT_ID_ARG 	= "clientid";
-	public final static String CALLBACK_ARG 	= "callback";
-	public final static String CODE_ARG 		= "code";
 	public final static String ID_ARG 			= "id";
-	public final static String DISCORD_ID_ARG 	= "discordid";
 	public final static String USER_ARG 		= "user";
-	
-	
-	
+
+	public final static String STATUS_ANSWER = "status";
+	public final static String PAYLOAD_ANSWER = "payload";
+	public final static String SUCCESS_ANSWER = "success";
+	public final static String FAILURE_ANSWER = "failure";
+
 	/**
 	 * Check if there's a null in params.
 	 * @param objs
@@ -61,34 +54,64 @@ public class ServicesTools {
 
 	public static JSONObject createJSONError(ServletError error) {
 		JSONObject json = new JSONObject();
-		json.put("errorCode", error.getCode());
-		json.put("errorMessage", error.getMessage());
+
+		json.put(STATUS_ANSWER, FAILURE_ANSWER);
+
+		JSONObject payload = new JSONObject();
+
+
+		payload.put("errorCode", error.getCode());
+		payload.put("errorMessage", error.getMessage());
+
+		json.put(PAYLOAD_ANSWER, payload);
+
+		return json;
+	}
+
+	public static JSONObject createJSONFailure(String notice) {
+		JSONObject json = new JSONObject();
+
+		json.put(STATUS_ANSWER, FAILURE_ANSWER);
+
+		JSONObject payload = new JSONObject();
+
+
+		payload.put("notice", notice);
+
+		json.put(PAYLOAD_ANSWER, payload);
 
 		return json;
 	}
 	
-	public static JSONObject createJSONError(ServletError error, String debugNotice) {
-		JSONObject result = createJSONError(error);
+	public static void addToPayload(JSONObject json, String key, Object value) {
+		if (json.isNull(PAYLOAD_ANSWER))
+			json.put(PAYLOAD_ANSWER, new JSONObject());
 		
-		if (Debug.isInDebug())
-			result.put("debug", debugNotice);
-		
-		return result;
+		json.getJSONObject(PAYLOAD_ANSWER).put(key, value);
 	}
 	
+	public static JSONObject createJSONError(ServletError error, String debugNotice) {
+		JSONObject result = createJSONError(error);
+
+		if (Debug.isInDebug())
+			result.getJSONObject(PAYLOAD_ANSWER).put("debug", debugNotice);
+
+		return result;
+	}
+
 	public static JSONObject createJSONError(ServletError error, Exception e) {
 		JSONObject json = createJSONError(error);
 
 		if (Debug.isInDebug()) 
-			json.put("debug", e.getMessage());
-		
+			json.getJSONObject(PAYLOAD_ANSWER).put("debug", e.getMessage());
+
 		return json;
 	}
 
 	public static JSONObject createPositiveAnswer() {
 		JSONObject ret = new JSONObject();
 
-		ret.put("success", true);
+		ret.put(STATUS_ANSWER, SUCCESS_ANSWER);
 
 		return ret;
 	}
@@ -117,10 +140,10 @@ public class ServicesTools {
 	public static void addCORSHeader(HttpServletResponse resp) {
 		resp.addHeader("Access-Control-Allow-Origin", "*");
 	}
-	
+
 	public static JSONObject createDatabaseError(Exception e) {
 		JSONObject result;
-		
+
 		if (e instanceof SQLException) {
 			Debug.display_stack(e);
 			result = createJSONError(DataBaseErrors.UKNOWN_SQL_ERROR);
@@ -132,15 +155,15 @@ public class ServicesTools {
 			Debug.display_stack(e);
 			result = createJSONError(DataBaseErrors.UKNOWN_DB_EXCEPTION);
 		}
-		
+
 		if (Debug.isInDebug()) {
-			result.put("debug", e.getMessage());
+			result.getJSONObject(PAYLOAD_ANSWER).put("debug", e.getMessage());
 		}
-		
-		
+
+
 		return result;
 	}
-	
+
 	public static JSONObject createInvalidKeyError() {
 		return createJSONError(ServerErrors.INVALID_KEY);
 	}

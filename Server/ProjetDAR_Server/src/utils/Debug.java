@@ -8,7 +8,7 @@ import org.json.JSONException;
 
 public class Debug {
 	//If DEBUG is true the program will run in debug mode.
-	private  static Boolean isInDebugMode = null;
+	private  static Boolean isInDebugMode = true;
 	private static String stack = "";
 	
 	
@@ -57,20 +57,7 @@ public class Debug {
 	}
 	
 	public static boolean isInDebug() {
-		if (isInDebugMode == null) {
-			try {
-				isInDebugMode = Boolean.parseBoolean(ConfigLoader.getVar("debug"));
-			} catch (JSONException | IOException e) {
-				isInDebugMode = true;
-				Logger.getGlobal().log(Level.WARNING, "Can't load config, debug has been set to true by default.");
-				e.printStackTrace();
-			}
-		}
-		
-		
-		
 		return isInDebugMode;
-		
 	}
 }
 

@@ -1,3 +1,5 @@
+package services.diag;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -7,20 +9,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/test")
-public class TestServlet extends HttpServlet {
-	private static final long serialVersionUID = -514345712229720561L;
+import org.json.JSONObject;
 
-	
-	
+@WebServlet("/diag/database")
+public class CheckDatabase extends HttpServlet {
+	private static final long serialVersionUID = -8079860390589231094L;
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
-		String answer = "{\"Hello\" : \"world!\"}";
-		
+		JSONObject answer = new JSONObject();
+
+		answer = DiagUtils.checkDatabase();
+
 		PrintWriter out = resp.getWriter();
 		out.write(answer.toString());
 		resp.setContentType("text/plain");
+
 	}
-	
 }

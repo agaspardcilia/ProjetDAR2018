@@ -1,9 +1,7 @@
 package database;
 
 
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,12 +9,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.json.JSONException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 import database.exceptions.CannotConnectToDatabaseException;
 import database.exceptions.QueryFailedException;
 import utils.CannotLoadConfigException;
-import utils.ConfigLoader;
 import utils.Debug;
 
 
@@ -32,42 +31,22 @@ public class DBMapper {
 	public final static String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss"; //mysql
 	public final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_PATTERN);
 	
-	private final static String DB_PARAMETERS = "?autoReconnect=true";
-	private final static String DB_NOT_SSL = "useSSL=false";
-	
 	public final static String JDBC_CLASS = "com.mysql.jdbc.Driver";
 
-	private static Connection crtConnection;
+	private static Connection crtConnection = null;
 
 	public final static int DUPLICATE_P_KEY_ERROR_CODE = 1062;
 
 
-	public static Connection getMySQLConnection() throws SQLException, CannotLoadConfigException {
-		try {
-			Class.forName(JDBC_CLASS);
-		} catch (ClassNotFoundException e) {
-			Debug.display_stack(e);
-		}
-		
+	public static Connection getMySQLConnection() throws SQLException, CannotLoadConfigException, NamingException {
 		if (crtConnection == null) {
-			try {
-			String host = ConfigLoader.getVar(ConfigLoader.DB_HOST);
-			String port = ConfigLoader.getVar(ConfigLoader.DB_PORT);
-			String db = ConfigLoader.getVar(ConfigLoader.DB_DATABASE);
-			String login = ConfigLoader.getVar(ConfigLoader.DB_LOGIN);
-			String pwd = ConfigLoader.getVar(ConfigLoader.DB_PASSWORD);
-			String params = DB_PARAMETERS;
-			String useSSL = (Boolean.parseBoolean(ConfigLoader.getVar(ConfigLoader.DB_USE_SSL))) ? "" : "&" + DB_NOT_SSL;
+			InitialContext cxt = new InitialContext();
+			DataSource ds = (DataSource) cxt.lookup("java:/comp/env/jdbc/ProjetDAR_Server" );
 			
-			String result = "jdbc:mysql://" + host + ":" + port + "/" + db + params + useSSL;
-			
-			crtConnection = DriverManager.getConnection(result, login, pwd);
-			} catch (JSONException | IOException e) {
-				throw new CannotLoadConfigException();
-			} 
+			crtConnection = ds.getConnection();
 		}
-		
-		return crtConnection;
+        
+        return crtConnection;
 	}
 
 
@@ -82,10 +61,12 @@ public class DBMapper {
 			database = getMySQLConnection();
 		} catch (SQLException e1) {
 			Debug.display_stack(e1);
-			throw new CannotConnectToDatabaseException("Sql exception");
+			throw new CannotConnectToDatabaseException("Sql exception.");
 		} catch(CannotLoadConfigException e1) {
 			Debug.display_stack(e1);
 			throw new CannotConnectToDatabaseException("Cannot load config file.");
+		} catch (NamingException e) {
+			throw new CannotConnectToDatabaseException("Naming error.");
 		}
 
 		try {
