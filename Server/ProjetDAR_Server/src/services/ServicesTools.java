@@ -167,6 +167,10 @@ public class ServicesTools {
 	public static JSONObject createInvalidKeyError() {
 		return createJSONError(ServerErrors.INVALID_KEY);
 	}
+	
+	public static JSONObject createMissingArgumentError() {
+		return createJSONError(ServerErrors.MISSING_ARGUMENT);
+	}
 }
 
 
