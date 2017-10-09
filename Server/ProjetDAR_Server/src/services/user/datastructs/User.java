@@ -1,4 +1,4 @@
-package services.user;
+package services.user.datastructs;
 
 import org.json.JSONObject;
 

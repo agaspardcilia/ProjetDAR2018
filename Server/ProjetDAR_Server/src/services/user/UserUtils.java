@@ -14,10 +14,12 @@ import database.exceptions.CannotConnectToDatabaseException;
 import database.exceptions.QueryFailedException;
 import services.ServicesTools;
 import services.auth.Authentication;
+import services.user.datastructs.SearchResult;
+import services.user.datastructs.User;
 
 public class UserUtils {
 	private final static String QUERY_SEARCH_USER = "SELECT * FROM users WHERE username LIKE ? ORDER BY idusers LIMIT ? OFFSET ?;";
-	
+
 	/**
 	 * Looks for someone in user database.
 	 * @param key Authentication key.
@@ -25,43 +27,39 @@ public class UserUtils {
 	 * @param page Page number (>= 0).
 	 * @param pageSize How many results per page (> 0).
 	 */
-	public static JSONObject search(String key, String query, int page, int pageSize) {
+	public static JSONObject search(String query, int page, int pageSize) {
 		JSONObject answer;
-		
+
 		try {
-			if (Authentication.validateAndRefreshKey(key)) {
-				List<User> queryResult = getUserListFromQuery(query, page, pageSize);
-				
-				SearchResult sr = new SearchResult(page, pageSize, queryResult);
-				
-				answer = ServicesTools.createPositiveAnswer();
-				ServicesTools.addToPayload(answer, "searchResult", sr.toJSONObject());
-			} else {
-				answer = ServicesTools.createInvalidKeyError();
-			}
+			List<User> queryResult = getUserListFromQuery(query, page, pageSize);
+
+			SearchResult sr = new SearchResult(page, pageSize, queryResult);
+
+			answer = ServicesTools.createPositiveAnswer();
+			ServicesTools.addToPayload(answer, "searchResult", sr.toJSONObject());
 		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException e) {
 			answer = ServicesTools.createDatabaseError(e);
 		}
-		
+
 		return answer;
 	}
-	
+
 	/**
 	 * Search
 	 */
 	private static List<User> getUserListFromQuery(String query, int page, int pageSize) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
 		List<User> result = new ArrayList<>();
-		
+
 		ResultSet rs = DBMapper.executeQuery(QUERY_SEARCH_USER, QueryType.SELECT, '%' + query + '%', pageSize, getOffset(page, pageSize));
-		
+
 		while (rs.next()) {
 			result.add(new User(rs.getInt("idusers"), rs.getString("username"), rs.getString("email")));
 		}
-		
+
 		return result;
 	}
-	
-	
+
+
 	private static int getOffset(int pageNumber, int pageSize) {
 		return pageNumber * pageSize;
 	}
