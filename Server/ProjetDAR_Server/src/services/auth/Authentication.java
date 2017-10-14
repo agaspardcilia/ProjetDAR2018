@@ -13,6 +13,8 @@ import database.DBMapper.QueryType;
 import database.exceptions.CannotConnectToDatabaseException;
 import database.exceptions.QueryFailedException;
 import services.ServicesTools;
+import services.auth.datastructs.Challenge;
+import services.auth.datastructs.LoginAnswer;
 import services.errors.ServerErrors;
 import services.user.datastructs.User;
 
@@ -21,7 +23,6 @@ public class Authentication {
 	private final static String QUERY_CHECK_USERNAME = "SELECT username FROM users WHERE username = LOWER(?);";
 	private final static String QUERY_CHECK_EMAIL = "SELECT username FROM users WHERE email = ?;";
 	private final static String QUERY_INSERT_USER = "INSERT INTO users VALUES (DEFAULT, LOWER(?), SHA2(?, 256), ?, ?);";
-
 	// Login queries
 	private final static String QUERY_GET_SALT = "SELECT salt FROM users WHERE username = LOWER(?);";
 	private final static String QUERY_LOGIN = "SELECT * FROM users WHERE username = LOWER(?) AND password = SHA2(?, 256);";
@@ -35,7 +36,7 @@ public class Authentication {
 	private final static String QUERY_IDUSER_KEY = "SELECT iduser FROM `keys` WHERE token = ?;";
 
 	private final static String QUERY_GET_USER = "SELECT * from users WHERE idusers = ?;";
-	
+
 	private final static long KEY_VALIDITY_DURATION = 1000*60*60*24; // TODO put this in a config file. 24h ?
 
 	public final static String LABEL_SALT = "salt";
@@ -48,6 +49,27 @@ public class Authentication {
 
 	public final static int MAX_EMAIL_LENGTH = 45;
 	public final static String EMAIL_REGEX = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}";
+
+
+	public static JSONObject getChallenge(String username) {
+		JSONObject answer;
+
+		try {
+			String salt;
+			salt = getSalt(username);
+
+			if (salt == null) { // Can't find user in db.
+				answer = ServicesTools.createJSONError(AuthErrors.WRONG_USERNAME_OR_PASSWORD);
+			} else {
+				answer = ServicesTools.createPositiveAnswer();
+				ServicesTools.addToPayload(answer, ServicesTools.CHALLENGE_ANSWER, new Challenge(username, salt));;
+			}
+
+		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException e) {
+			answer = ServicesTools.createDatabaseError(e);
+		}
+		return answer;
+	}
 
 	/**
 	 * Create an authentication key.
@@ -76,10 +98,12 @@ public class Authentication {
 
 					// Puts new key in db.
 					DBMapper.executeQuery(QUERY_INSERT_KEY, QueryType.INSERT, key, result.getInt(LABEL_IDUSER), DBMapper.getTimeNow());
-					
+
 					answer = ServicesTools.createPositiveAnswer();
-					answer.put(ServicesTools.KEY_ARG, key);
-					answer.put(ServicesTools.IDUSER_ARG, result.getInt(LABEL_IDUSER));
+					
+					LoginAnswer la = new LoginAnswer(key, result.getInt(LABEL_IDUSER));
+					
+					ServicesTools.addToPayload(answer, "login-answer", la);
 				} else {
 					answer = ServicesTools.createJSONError(AuthErrors.WRONG_USERNAME_OR_PASSWORD);
 				}
@@ -138,12 +162,12 @@ public class Authentication {
 	 */
 	public static JSONObject logout(String key) {
 		JSONObject answer;
-		
+
 		try {
 			if (isKeyValid(key)) {
 				int idUser = getIdUserFromKey(key);
 				removeKeyByIdUser(idUser);
-				
+
 				answer = ServicesTools.createPositiveAnswer();
 			} else {
 				answer = ServicesTools.createJSONError(ServerErrors.INVALID_KEY);
@@ -151,11 +175,11 @@ public class Authentication {
 		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException e) {
 			answer = ServicesTools.createDatabaseError(e);
 		}
-		
-		
+
+
 		return answer;
 	}
-	
+
 	/**
 	 * Is this username in use by another user ?
 	 */
@@ -218,7 +242,7 @@ public class Authentication {
 		else
 			return resultSet.getString(LABEL_SALT);
 	}
-	
+
 	/**
 	 * Create a new key and make sure it's not already in database.
 	 * @return New key.
@@ -308,7 +332,7 @@ public class Authentication {
 
 		return result.next();
 	}
-	
+
 	/**
 	 * Get user information from database.
 	 * @param idUser User id.
@@ -316,19 +340,19 @@ public class Authentication {
 	 */
 	public static User getUserFromId(int idUser) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
 		ResultSet resultSet = DBMapper.executeQuery(QUERY_GET_USER, QueryType.SELECT, idUser);
-		
+
 		if (resultSet.next()) {
 			String username;
 			String email;
-			
+
 			username = resultSet.getString("username");
 			email = resultSet.getString("email");
-			
+
 			return new User(idUser, username, email);
 		} else 
 			return null;
-		
-		
-	}
 
+
+	}
+	
 }

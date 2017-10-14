@@ -5,7 +5,9 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class SearchResult {
+import utils.JSONable;
+
+public class SearchResult implements JSONable {
 	private int page;
 	private int pageSize;
 	private List<User> results;
@@ -29,6 +31,7 @@ public class SearchResult {
 		return results;
 	}
 	
+	@Override
 	public JSONObject toJSONObject() {
 		JSONObject result = new JSONObject();
 		

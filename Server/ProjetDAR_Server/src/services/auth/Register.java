@@ -33,9 +33,16 @@ public class Register extends HttpServlet {
 		} else {
 			answer = ServicesTools.createJSONError(ServerErrors.MISSING_ARGUMENT);
 		}
+		ServicesTools.addCORSHeader(resp);
+		
 		
 		PrintWriter out = resp.getWriter();
 		out.write(answer.toString());
 		resp.setContentType("text/plain");
+	}
+	
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		doGet(req, resp);
 	}
 }

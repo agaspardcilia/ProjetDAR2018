@@ -2,7 +2,9 @@ package services.user.datastructs;
 
 import org.json.JSONObject;
 
-public class User {
+import utils.JSONable;
+
+public class User implements JSONable {
 	private int id;
 	private String username;
 	private String email;
@@ -25,6 +27,7 @@ public class User {
 		return email;
 	}
 
+	@Override
 	public JSONObject toJSONObject() {
 		JSONObject result = new JSONObject();
 		
