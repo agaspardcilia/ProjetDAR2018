@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import database.DBMapper;
 import services.ServicesTools;
+import services.diag.datastruct.ExceptionReport;
 import utils.CannotLoadConfigException;
 
 public class DiagUtils {
@@ -24,9 +25,7 @@ public class DiagUtils {
 		} catch (SQLException | CannotLoadConfigException | NamingException e) {
 			answer = ServicesTools.createJSONFailure("Cannot connect to database");
 			
-			ServicesTools.addToPayload(answer, "exc-class", e.getClass());
-			ServicesTools.addToPayload(answer, "stack", e.getMessage());
-			
+			ServicesTools.addToPayload(answer, "report", new ExceptionReport(e));
 		}
 		
 		return answer;

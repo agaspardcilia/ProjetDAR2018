@@ -36,7 +36,7 @@ public class UserUtils {
 			SearchResult sr = new SearchResult(page, pageSize, queryResult);
 
 			answer = ServicesTools.createPositiveAnswer();
-			ServicesTools.addToPayload(answer, "searchResult", sr.toJSONObject());
+			ServicesTools.addToPayload(answer, "searchResult", sr);
 		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException e) {
 			answer = ServicesTools.createDatabaseError(e);
 		}

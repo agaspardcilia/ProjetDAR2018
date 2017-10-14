@@ -16,6 +16,7 @@ import services.auth.AuthErrors;
 import services.errors.ServerErrors;
 import services.errors.ServletError;
 import utils.Debug;
+import utils.JSONable;
 
 public class ServicesTools {
 	//Common args name.
@@ -29,11 +30,12 @@ public class ServicesTools {
 	public final static String QUERY_ARG 		= "query";
 	public final static String ID_ARG 			= "id";
 	public final static String USER_ARG 		= "user";
-
+	
 	public final static String STATUS_ANSWER = "status";
 	public final static String PAYLOAD_ANSWER = "payload";
 	public final static String SUCCESS_ANSWER = "success";
 	public final static String FAILURE_ANSWER = "failure";
+	public final static String CHALLENGE_ANSWER = "challenge";
 
 	/**
 	 * Check if there's a null in params.
@@ -83,11 +85,11 @@ public class ServicesTools {
 		return json;
 	}
 	
-	public static void addToPayload(JSONObject json, String key, Object value) {
+	public static void addToPayload(JSONObject json, String key, JSONable value) {
 		if (json.isNull(PAYLOAD_ANSWER))
 			json.put(PAYLOAD_ANSWER, new JSONObject());
 		
-		json.getJSONObject(PAYLOAD_ANSWER).put(key, value);
+		json.getJSONObject(PAYLOAD_ANSWER).put(key, value.toJSONObject());
 	}
 	
 	public static JSONObject createJSONError(ServletError error, String debugNotice) {
@@ -171,6 +173,8 @@ public class ServicesTools {
 	public static JSONObject createMissingArgumentError() {
 		return createJSONError(ServerErrors.MISSING_ARGUMENT);
 	}
+
+
 }
 
 
