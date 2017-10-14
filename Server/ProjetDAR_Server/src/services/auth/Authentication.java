@@ -13,7 +13,6 @@ import database.DBMapper.QueryType;
 import database.exceptions.CannotConnectToDatabaseException;
 import database.exceptions.QueryFailedException;
 import services.ServicesTools;
-import services.auth.datastructs.Challenge;
 import services.auth.datastructs.LoginAnswer;
 import services.errors.ServerErrors;
 import services.user.datastructs.User;
@@ -50,26 +49,6 @@ public class Authentication {
 	public final static int MAX_EMAIL_LENGTH = 45;
 	public final static String EMAIL_REGEX = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}";
 
-
-	public static JSONObject getChallenge(String username) {
-		JSONObject answer;
-
-		try {
-			String salt;
-			salt = getSalt(username);
-
-			if (salt == null) { // Can't find user in db.
-				answer = ServicesTools.createJSONError(AuthErrors.WRONG_USERNAME_OR_PASSWORD);
-			} else {
-				answer = ServicesTools.createPositiveAnswer();
-				ServicesTools.addToPayload(answer, ServicesTools.CHALLENGE_ANSWER, new Challenge(username, salt));;
-			}
-
-		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException e) {
-			answer = ServicesTools.createDatabaseError(e);
-		}
-		return answer;
-	}
 
 	/**
 	 * Create an authentication key.
