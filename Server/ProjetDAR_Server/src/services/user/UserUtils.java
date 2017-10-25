@@ -19,7 +19,7 @@ import services.user.datastructs.User;
 
 public class UserUtils {
 	private final static String QUERY_SEARCH_USER = "SELECT * FROM users WHERE username LIKE ? ORDER BY idusers LIMIT ? OFFSET ?;";
-
+	
 	/**
 	 * Looks for someone in user database.
 	 * @param key Authentication key.
@@ -32,7 +32,6 @@ public class UserUtils {
 
 		try {
 			List<User> queryResult = getUserListFromQuery(query, page, pageSize);
-
 			SearchResult sr = new SearchResult(page, pageSize, queryResult);
 
 			answer = ServicesTools.createPositiveAnswer();
