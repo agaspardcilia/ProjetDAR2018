@@ -26,8 +26,6 @@ import utils.Debug;
  */
 public class DBMapper {
 
-
-	//private final static String DATE_PATTERN = "HH:mm:ss dd/MM/YY"; //postgres
 	public final static String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss"; //mysql
 	public final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_PATTERN);
 	
