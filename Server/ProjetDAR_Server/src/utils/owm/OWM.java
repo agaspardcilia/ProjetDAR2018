@@ -2,6 +2,8 @@ package utils.owm;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,9 +82,11 @@ public class OWM {
 	
 	public static void main(String[] args) {
 		OWM owm = new OWM("eff456cdb0b08998dc93401e3b72e54c");
-		
+
 		try {
-			System.out.println(owm.getCurrentWeather("paris"));
+			owm.getFiveDaysForecastWeather("Paris").getForecasts().forEach(fc -> {
+				System.out.println(fc.getDate());
+			});
 		} catch (IOException | HttpException e) {
 			e.printStackTrace();
 		}

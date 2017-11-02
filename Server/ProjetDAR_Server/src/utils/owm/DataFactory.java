@@ -57,7 +57,7 @@ public class DataFactory {
 	}
 
 	public static Forecast newForecastFromJSONObject(JSONObject rawData) {
-		Date date = new Date(rawData.getLong("dt"));
+		Date date = new Date(rawData.getLong("dt") * 1000L);
 		MainData main = newMainDataFromJSONObject(rawData.getJSONObject("main"));
 		Weather weather = newWeatherFromJSONObject(rawData.getJSONArray("weather"));
 		Clouds clouds = newCloudsFromJSONObject(rawData.getJSONObject("clouds"));
