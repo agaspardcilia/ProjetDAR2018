@@ -1,12 +1,10 @@
 package database;
 
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.sql.DataSource;
 
 import org.bson.Document;
 
@@ -23,6 +21,8 @@ import com.mongodb.client.MongoDatabase;
  * MongoDB Connection.
  */
 public class MongoMapper {
+	public final static String DOC_ID = "_id";
+	
 	public final static String DATABASE = "platine";
 
 	private static MongoDatabase db;
@@ -93,6 +93,10 @@ public class MongoMapper {
 		result.skip(startIndex);
 		
 		return result;
+	}
+	
+	public static MongoCollection<Document> getCollection(String collection) throws SQLException, NamingException {
+		return getMongoDBConnection().getCollection(collection);
 	}
 	
 	

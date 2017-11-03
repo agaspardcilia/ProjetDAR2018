@@ -14,7 +14,7 @@ import database.exceptions.CannotConnectToDatabaseException;
 import database.exceptions.QueryFailedException;
 import services.ServicesTools;
 import services.auth.Authentication;
-import services.user.datastructs.SearchResult;
+import services.datastructs.SearchResult;
 import services.user.datastructs.User;
 
 public class UserUtils {

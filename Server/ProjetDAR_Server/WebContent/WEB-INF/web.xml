@@ -19,14 +19,8 @@
 		<res-auth>Container</res-auth>
 	</resource-ref>
 	<resource-ref>
-		<res-ref-name>
-			mongodb/Mongo
-		</res-ref-name>
-		<res-type>
-			com.mongodb.MongoClient
-		</res-type>
-		<res-auth>
-			Container
-		</res-auth>
+		<res-ref-name>mongodb/Mongo</res-ref-name>
+		<res-type>com.mongodb.MongoClient</res-type>
+		<res-auth>Container</res-auth>
 	</resource-ref>
 </web-app>

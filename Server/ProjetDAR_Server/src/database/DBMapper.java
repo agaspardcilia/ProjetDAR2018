@@ -15,7 +15,6 @@ import javax.sql.DataSource;
 
 import database.exceptions.CannotConnectToDatabaseException;
 import database.exceptions.QueryFailedException;
-import utils.CannotLoadConfigException;
 import utils.Debug;
 
 
