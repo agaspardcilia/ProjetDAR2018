@@ -36,7 +36,7 @@ public class DBMapper {
 	public final static int DUPLICATE_P_KEY_ERROR_CODE = 1062;
 
 
-	public static Connection getMySQLConnection() throws SQLException, CannotLoadConfigException, NamingException {
+	public static Connection getMySQLConnection() throws SQLException, NamingException {
 		if (crtConnection == null) {
 			InitialContext cxt = new InitialContext();
 			DataSource ds = (DataSource) cxt.lookup("java:/comp/env/jdbc/ProjetDAR_Server" );
@@ -60,9 +60,6 @@ public class DBMapper {
 		} catch (SQLException e1) {
 			Debug.display_stack(e1);
 			throw new CannotConnectToDatabaseException("Sql exception.");
-		} catch(CannotLoadConfigException e1) {
-			Debug.display_stack(e1);
-			throw new CannotConnectToDatabaseException("Cannot load config file.");
 		} catch (NamingException e) {
 			throw new CannotConnectToDatabaseException("Naming error.");
 		}

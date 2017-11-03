@@ -11,15 +11,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
-@WebServlet("/diag/database")
-public class CheckDatabase extends HttpServlet {
-	private static final long serialVersionUID = -8079860390589231094L;
-
+@WebServlet("/diag/nosql")
+public class CheckNoSQLDatabase extends HttpServlet{
+	private static final long serialVersionUID = -8990107765777433099L;
+	
+	
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		JSONObject answer = new JSONObject();
 
-		answer = DiagUtils.checkDatabase();
+		answer = DiagUtils.checkNoSQL();
 
 		PrintWriter out = resp.getWriter();
 		out.write(answer.toString());
@@ -28,7 +29,7 @@ public class CheckDatabase extends HttpServlet {
 	}
 	
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		this.doGet(req, resp);
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		this.doPost(req, resp);
 	}
 }
