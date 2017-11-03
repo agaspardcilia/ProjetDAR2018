@@ -297,7 +297,7 @@ public class Authentication {
 		ResultSet result = DBMapper.executeQuery(QUERY_IDUSER_KEY, QueryType.SELECT, key);
 
 		if (result.next())
-			return result.getInt("idusers");
+			return result.getInt("iduser");
 		else
 			return -1;
 

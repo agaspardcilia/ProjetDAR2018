@@ -1,18 +1,19 @@
-package services.user.datastructs;
+package services.datastructs;
 
 import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import services.user.datastructs.User;
 import utils.JSONable;
 
 public class SearchResult implements JSONable {
 	private int page;
 	private int pageSize;
-	private List<User> results;
+	private List<? extends JSONable> results;
 	
-	public SearchResult(int page, int pageSize, List<User> results) {
+	public SearchResult(int page, int pageSize, List<? extends JSONable> results) {
 		this.page = page;
 		this.pageSize = pageSize;
 		this.results = results;
@@ -27,7 +28,7 @@ public class SearchResult implements JSONable {
 		return pageSize;
 	}
 	
-	public List<User> getResults() {
+	public List<? extends JSONable> getResults() {
 		return results;
 	}
 	
@@ -41,7 +42,7 @@ public class SearchResult implements JSONable {
 		
 		results.forEach(u -> users.put(u.toJSONObject()));
 		
-		result.put("users", users); 
+		result.put("result", users); 
 		
 		return result;
 	}
