@@ -1,4 +1,4 @@
-import Authentification from "./auth/Authentification.js";
+import Authentification from "./auth/Authentication.js";
 
 export default class Controller {
     start() {
