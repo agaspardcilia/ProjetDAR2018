@@ -1,27 +1,28 @@
 import ServerAnswer from "./ServerAnswer.js";
-
 const API_PATH = "http://localhost:8080/ProjetDAR_Server/";
 
 const REGISTER_PATH = "user/register";
 const LOGIN_PATH = "user/login";
 const CHALLENGE_PATH = "user/challenge";
 
-export default class Authentication {
+export default class Authentification {
     
     constructor() {}
     
     // Bind functions to forms.
     static  bindForm() {
-        $(".login-form").submit(function(e) {
+        $("#login-form").submit(function(e) {
             e.preventDefault();  
-            Authentication.login(e);
+            Authentification.login(e);
         });
-    
-        $(".register-form").submit(function(e) {
+        
+        $("#register-form").submit(function(e) {
             e.preventDefault();  
-            Authentication.register(e);
+            Authentification.register(e);
         });
+        
     }
+
 
     static login(submit) {
         var form = submit.target;
@@ -55,13 +56,19 @@ export default class Authentication {
         return false;
     }
    
-    static register(submit) {
+    static  register(submit) {
+
         var form = submit.target;
 
         var username = form.username.value;
         var password = form.password.value;
+        var confirmPassword= form.confirm_password.value;
         var email = form.email.value;
-    
+
+        if(password!==confirmPassword){
+            $("#simple-message").text("les mots de passe ne se pas identiques !");  
+            return false;          
+        }
         $.ajax({
             url: API_PATH + REGISTER_PATH,
             type: 'post',
@@ -86,7 +93,14 @@ export default class Authentication {
         });
     
         return false;
-    }
+    
+}
+
+
+
+
+
+
 }
 
 

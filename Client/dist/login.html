@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  <title>Authentification</title>
+  <script type="text/javascript"></script>
+
+  <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  
+  <!-- Custom CSS -->    
+  <link rel="stylesheet" href="./style/register.css">
+</head>
+
+<body>
+      <div class="container">
+        
+    <form class="well form-horizontal" method="POST" action="" id="login-form">
+<fieldset>
+
+<!-- Form Name -->
+<legend><center><h2><b>Se connecter </b></h2></center></legend><br>
+
+
+<!-- Text input-->
+
+<div class="form-group">
+  <label class="col-md-4 control-label">Nom d'utilisateur</label>  
+  <div class="col-md-4 inputGroupContainer">
+  <div class="input-group">
+  <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+  <input  minlength="4" maxlength="45" name="username" id="username" placeholder="Nom d'utilisateur" class="form-control"  type="text">
+    </div>
+  </div>
+</div>
+
+
+<div class="form-group">
+  <label class="col-md-4 control-label" >Mot de passe</label> 
+    <div class="col-md-4 inputGroupContainer">
+    <div class="input-group">
+  <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+  <input name="password" id="password" placeholder="Mot de passe" 
+  class="form-control"  type="password" minlength="6" maxlength="45">
+    </div>
+  </div>
+</div>
+
+
+<!-- Success message -->
+<div class="alert alert-success" role="alert" id="success_message">Success <i class="glyphicon glyphicon-thumbs-up"></i> Success!.</div>
+
+<!-- Button -->
+<div class="form-group">
+  <label class="col-md-4 control-label"></label>
+  <div class="col-md-4"><br>
+    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+    <button type="submit" class="btn btn-warning" name="register" id="register"  value="Register" >
+      &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspConnexion <span class="glyphicon glyphicon-send">
+        </span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</button>
+  </div>
+</div>
+
+</fieldset>
+</form>
+</div>
+    </div><!-- /.container -->
+
+
+
+    <h4 id="login-result"></h4>
+    <h4 id="register-result"></h4>
+    <h4 id="simple-message"></h4>
+    
+    
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> 
+    <script src="bootstrap/js/bootstrap.min.js" ></script>
+    <script src="bundle.js" ></script>
+    
+
+</body>
+</html>

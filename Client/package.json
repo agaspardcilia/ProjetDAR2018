@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "webpack": "^3.7.1"
+    "open-browser-webpack-plugin": "0.0.5",
+    "webpack": "^3.8.1"
   }
 }
