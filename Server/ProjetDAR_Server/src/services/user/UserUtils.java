@@ -43,6 +43,23 @@ public class UserUtils {
 		return answer;
 	}
 
+	public static JSONObject getUserByID(int idUser) {
+		JSONObject result;
+		
+		try {
+			
+			User u = Authentication.getUserFromId(idUser);
+			result = ServicesTools.createPositiveAnswer();
+			
+			ServicesTools.addToPayload(result, ServicesTools.USER_ARG, u);
+			
+		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException e) {
+			result = ServicesTools.createDatabaseError(e);
+		}
+		
+		return result;
+	}
+
 	/**
 	 * Search
 	 */
@@ -57,8 +74,9 @@ public class UserUtils {
 
 		return result;
 	}
-
-
+	
+	
+	
 	private static int getOffset(int pageNumber, int pageSize) {
 		return pageNumber * pageSize;
 	}

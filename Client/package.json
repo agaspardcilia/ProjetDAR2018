@@ -12,5 +12,8 @@
   "devDependencies": {
     "open-browser-webpack-plugin": "0.0.5",
     "webpack": "^3.8.1"
+  },
+  "dependencies": {
+    "js-cookie": "^2.2.0"
   }
 }

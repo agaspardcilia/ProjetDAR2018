@@ -6,8 +6,6 @@ const FAILURE_ANSWER = "failure";
 export default class ServerAnswer {
     
     constructor(jsonData) {
-        console.log(jsonData);
-
         this.successful = jsonData[STATUS_ANSWER] == SUCCESS_ANSWER;
         this.payload = jsonData[PAYLOAD_ANSWER];
     }

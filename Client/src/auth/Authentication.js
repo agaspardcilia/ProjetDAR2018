@@ -1,8 +1,11 @@
-import ServerAnswer from "./ServerAnswer.js";
-const API_PATH = "http://localhost:8080/ProjetDAR_Server/";
+import ServerAnswer from "../network/ServerAnswer.js";
+import Context from "../Context.js";
+
+const API_PATH = "http://localhost:8080/ProjetDAR/";
 
 const REGISTER_PATH = "user/register";
 const LOGIN_PATH = "user/login";
+const LOGOUT_PATH = "user/logout";
 const CHALLENGE_PATH = "user/challenge";
 
 export default class Authentication {
@@ -13,14 +16,21 @@ export default class Authentication {
     static  bindForm() {
         $("#login-form").submit(function(e) {
             e.preventDefault();  
-            Authentification.login(e);
+            Authentication.login(e);
         });
         
         $("#register-form").submit(function(e) {
             e.preventDefault();  
-            Authentification.register(e);
+            Authentication.register(e);
         });
         
+        $(".logout-button").click(function() {
+            console.log("doin stuff");
+            Authentication.logout();
+            Context.currentInstance.setDisconnected();
+            window.location = "index.html";
+
+        });
     }
 
 
@@ -40,14 +50,17 @@ export default class Authentication {
                 var answer = new ServerAnswer(data);
     
                 if (answer.isSuccessful()) {
-                    $("#login-result").text("Success! key : " + answer.payload["login-answer"]["key"]);
+                    Context.currentInstance.setConnected(answer.payload["login-answer"]["key"], answer.payload["login-answer"]["iduser"]);
+                    window.location = "index.html";
                 } else {
+                    // TODO show an error.
                     $("#login-result").text("Server error." + answer.getErrorCode() + " : " + answer.getErrorMessage());
                 }
     
             }, 
     
             error: function (xhr, ajaxOptions, thrownError) {
+                // TODO show an error.
                 $("#register-result").text("Failure! " + xhr);
             }
     
@@ -79,14 +92,17 @@ export default class Authentication {
                 var answer = new ServerAnswer(data);
     
                 if (answer.isSuccessful()) {
-                    $("#register-result").text("Success!");
+                    Context.currentInstance.setConnected(answer.payload["login-answer"]["key"], answer.payload["login-answer"]["iduser"]);
+                    window.location = "index.html";
                 } else {
+                    // TODO show an error.
                     $("#register-result").text("Server error." + answer.getErrorCode() + " : " + answer.getErrorMessage());
                 }
     
             }, 
     
             error: function (xhr, ajaxOptions, thrownError) {
+                // TODO show an error.
                 $("#register-result").text("Failure! " + xhr);
             }
     
@@ -94,9 +110,26 @@ export default class Authentication {
     
         return false;
     
-}
+    }
 
-
+    static logout(key) {
+        // TODO
+        /*$.ajax({
+            url: API_PATH + LOGOUT_PATH,
+            type: 'post',
+            data: {"key" : key},
+            dataType: "json",
+            async: false,
+            success: function(data) {
+                window.location = "index.html";
+            }, 
+    
+            error: function (xhr, ajaxOptions, thrownError) {
+                window.location = "index.html";
+            }
+    
+        });*/
+    }
 
 
 

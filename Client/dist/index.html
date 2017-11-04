@@ -25,7 +25,10 @@
                       <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
                     </form>
                     <ul class="nav navbar-nav navbar-right">
-                      <li><a href="#">Se connecter</a></li>
+                      <li class="not-connected-item"><a href="login.html">Se connecter</a></li>
+                      <li class="not-connected-item"><a href="register.html">S'inscrire</a></li>
+                      <li class="connected-item" style="display:none;"><a href="#"><span class="user-name"></span></a></li>
+                      <li class="connected-item" style="display:none;"><a href="#" class="logout-button">Se deconnecter</a></li>
                     </ul>
                   </div>
                 </div>
@@ -131,5 +134,6 @@
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> 
     <script src="bootstrap/js/bootstrap.min.js" ></script>
+    <script src="bundle.js"></script>
   </body>
 </html>

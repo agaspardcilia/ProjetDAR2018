@@ -124,7 +124,8 @@ public class Authentication {
 				} else if (isEmailInUse(email)) {
 					answer = ServicesTools.createJSONError(AuthErrors.EMAIL_IN_USE);
 				} else { // Valid parameters
-					answer = addUserToDB(username, password, email);
+					addUserToDB(username, password, email);
+					answer = login(username, password);
 				}
 			} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException e) {
 				answer = ServicesTools.createDatabaseError(e);
