@@ -20,16 +20,23 @@ import database.exceptions.QueryFailedException;
 import services.ServicesTools;
 import services.auth.Authentication;
 import services.datastructs.SearchResult;
+import services.social.datastructs.Comment;
 import services.social.datastructs.Status;
 import services.user.datastructs.User;
 
 public class SocialUtils {
 	public final static String STATUS_COLLECTION = "status";
+	public final static String COMMENTS_COLLECTION = "comments";
+	
 	public final static String AUTHOR_KEY = "author";
 	public final static String CONTENT_KEY = "content";
 	public final static String TIMESTAMP_KEY = "timestamp";
+	public final static String STATUS_ID_KEY = "status_id";
+	
 	
 	public final static String CONTENT_ARG = "content";
+	public final static String COMMENT_ARG = "comment";
+	public final static String STATUS_ID_ARG = "statusid";
 	
 	
 	
@@ -66,6 +73,24 @@ public class SocialUtils {
 		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException | NamingException e) {
 			result = ServicesTools.createDatabaseError(e);
 		}
+		
+		return result;
+	}
+	
+	public static JSONObject addCommentToStatus(String key, String statusId, String content) {
+		JSONObject result;
+		
+		try {
+			int idUser = Authentication.getIdUserFromKey(key);
+			Comment c = addComment(idUser, statusId, content);
+			
+			result = ServicesTools.createPositiveAnswer();
+			ServicesTools.addToPayload(result, COMMENT_ARG, c);
+			
+		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException | NamingException e) {
+			result = ServicesTools.createDatabaseError(e);
+		}
+		
 		
 		return result;
 	}
@@ -136,6 +161,31 @@ public class SocialUtils {
 		return new SearchResult(page, pageSize, result);
 	}
 
+	private static Comment addComment(int idAuthor, String statusId, String content) throws SQLException, NamingException, CannotConnectToDatabaseException, QueryFailedException {
+		
+		long timestamp = System.currentTimeMillis();
+		
+		
+		Document doc = new Document();
+		doc.append(AUTHOR_KEY, idAuthor);
+		doc.append(STATUS_ID_KEY, statusId);
+		doc.append(CONTENT_KEY, content);
+		doc.append(TIMESTAMP_KEY, timestamp);
+		
+		MongoMapper.executeInsertOne(COMMENTS_COLLECTION, doc);
+		
+		FindIterable<Document> qResult;
+		Map<String, Object> args = new HashMap<>();
+
+		args.put(SocialUtils.AUTHOR_KEY, idAuthor);
+		args.put(TIMESTAMP_KEY, timestamp);
+
+		qResult = MongoMapper.executeGet(COMMENTS_COLLECTION, args, 0);
+
+		doc = qResult.first();
+		
+		return getCommentFromDocument(doc);
+	}
 	
 	private static Status getStatusFromDocument(Document doc) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
 		String id;
@@ -150,5 +200,25 @@ public class SocialUtils {
 		
 		return new Status(id, author, content, timestamp);
 	}
+	
+	private static Comment getCommentFromDocument(Document doc) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
+		String id;
+		User author;
+		String content;
+		long timestamp;
+		String statusId;
+		
+		
+		
+		id = doc.getObjectId(MongoMapper.DOC_ID).toHexString();
+		author = Authentication.getUserFromId(doc.getInteger(AUTHOR_KEY));
+		content = doc.getString(CONTENT_KEY);
+		timestamp = doc.getLong(TIMESTAMP_KEY);
+		statusId = doc.getString(STATUS_ID_KEY);
+		
+		
+		return new Comment(id, author, timestamp, content, statusId);
+	}
+	
 
 }

@@ -5,7 +5,6 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import services.user.datastructs.User;
 import utils.JSONable;
 
 public class SearchResult implements JSONable {
@@ -38,11 +37,11 @@ public class SearchResult implements JSONable {
 		
 		result.put("page", page);
 		result.put("size", pageSize);
-		JSONArray users = new JSONArray();
+		JSONArray data = new JSONArray();
 		
-		results.forEach(u -> users.put(u.toJSONObject()));
+		results.forEach(d -> data.put(d.toJSONObject()));
 		
-		result.put("result", users); 
+		result.put("result", data); 
 		
 		return result;
 	}
