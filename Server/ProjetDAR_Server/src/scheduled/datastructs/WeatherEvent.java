@@ -2,7 +2,15 @@ package scheduled.datastructs;
 
 import java.util.Date;
 
-public class WeatherEvent {
+import org.json.JSONObject;
+
+import utils.JSONable;
+
+/**
+ * 
+ *@modify cb_mac 5/11/17 
+ */
+public class WeatherEvent implements JSONable{
 	private int idEvent;
 	private City city;
 	private EventType eventType;
@@ -35,6 +43,18 @@ public class WeatherEvent {
 	@Override
 	public String toString() {
 		return "Weather event [id=" + idEvent  + ", city=" + city + ", eventType="+ eventType + ", date=" + date + "]";
+	}
+
+	@Override
+	public JSONObject toJSONObject() {
+		JSONObject result = new JSONObject();
+		
+		result.put("idEvent",idEvent);
+		result.put("city", city.toJSONObject());
+		result.put("eventType", eventType.toJSONObject());
+		result.put("date", date);
+		
+		return result;
 	}
 	
 	

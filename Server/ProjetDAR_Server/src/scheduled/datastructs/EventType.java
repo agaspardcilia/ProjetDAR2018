@@ -1,6 +1,15 @@
 package scheduled.datastructs;
 
-public enum EventType {
+import org.json.JSONObject;
+
+import utils.JSONable;
+
+/**
+ * 
+ *@modify cb_mac 5/11/17 
+ *
+ */
+public enum EventType implements JSONable{
 	RAIN(1, 500, "Rain");
 	
 	private int id;
@@ -32,5 +41,15 @@ public enum EventType {
 		}
 		
 		return null;
+	}
+
+	@Override
+	public JSONObject toJSONObject() {
+		JSONObject result = new JSONObject();
+		result.put("id", id);
+		result.put("owmId", owmId);
+		result.put("name", name);
+		return result;
+		
 	}
 }
