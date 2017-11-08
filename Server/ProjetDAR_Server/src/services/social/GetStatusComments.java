@@ -11,27 +11,28 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
-import annotations.AuthenticationRequiried;
 import services.ServicesTools;
 import services.errors.ServerErrors;
 
-@AuthenticationRequiried
-@WebServlet("/social/comment/add")
-public class AddComment extends HttpServlet {
-	private static final long serialVersionUID = 4190981992129407673L;
+@WebServlet("/social/status/comments")
+public class GetStatusComments extends HttpServlet {
+	private static final long serialVersionUID = 7345769660359653936L;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		JSONObject answer = new JSONObject();
 		
-		String key = req.getParameter(ServicesTools.KEY_ARG);
-		String content = req.getParameter(SocialUtils.CONTENT_ARG);
-		String statusID = req.getParameter(SocialUtils.STATUS_ID_ARG);
-		
-		if (!ServicesTools.nullChecker(key, content, statusID)) {
-			answer = SocialUtils.addCommentToStatus(key, statusID, content);
-		} else {
-			answer = ServicesTools.createJSONError(ServerErrors.MISSING_ARGUMENT);
+		try {
+			String idStatus = req.getParameter(SocialUtils.STATUS_ID_ARG);
+			int page = Integer.parseInt(req.getParameter(ServicesTools.PAGE_ARG));
+			int size = Integer.parseInt(req.getParameter(ServicesTools.SIZE_ARG));
+			if (!ServicesTools.nullChecker(idStatus, size, page)) {
+				answer = SocialUtils.getStatusComments(idStatus, page, size);
+			} else {
+				answer = ServicesTools.createJSONError(ServerErrors.MISSING_ARGUMENT);
+			}
+		} catch(NumberFormatException e) {
+			answer = ServicesTools.createJSONError(ServerErrors.BAD_ARGUMENT);
 		}
 		
 		ServicesTools.addCORSHeader(resp);

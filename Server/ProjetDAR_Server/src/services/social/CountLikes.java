@@ -11,25 +11,21 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
-import annotations.AuthenticationRequiried;
 import services.ServicesTools;
 import services.errors.ServerErrors;
 
-@AuthenticationRequiried
-@WebServlet("/social/comment/add")
-public class AddComment extends HttpServlet {
+@WebServlet("/social/like/count")
+public class CountLikes extends HttpServlet {
 	private static final long serialVersionUID = 4190981992129407673L;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		JSONObject answer = new JSONObject();
 		
-		String key = req.getParameter(ServicesTools.KEY_ARG);
-		String content = req.getParameter(SocialUtils.CONTENT_ARG);
 		String statusID = req.getParameter(SocialUtils.STATUS_ID_ARG);
 		
-		if (!ServicesTools.nullChecker(key, content, statusID)) {
-			answer = SocialUtils.addCommentToStatus(key, statusID, content);
+		if (!ServicesTools.nullChecker(statusID)) {
+			answer = SocialUtils.getLikeCount(statusID);
 		} else {
 			answer = ServicesTools.createJSONError(ServerErrors.MISSING_ARGUMENT);
 		}
@@ -47,3 +43,4 @@ public class AddComment extends HttpServlet {
 		this.doGet(req, resp);
 	}
 }
+

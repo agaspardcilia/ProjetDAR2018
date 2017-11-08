@@ -2,6 +2,7 @@ package database;
 
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -99,6 +100,14 @@ public class MongoMapper {
 		return getMongoDBConnection().getCollection(collection);
 	}
 	
+	public static int count(FindIterable<Document> findQuery) {
+		int result = 0;
+		for (Document d : findQuery) {
+			result++;
+		}
+		
+		return result;
+	}
 	
 	public enum Operator {
 		GT("gt"), LT("lt");
