@@ -1,13 +1,9 @@
 package utils.odd;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
-import utils.owm.data.FiveDaysForcast;
 import utils.owm.data.Forecast;
-import utils.webapi.HttpException;
-import utils.owm.OWM;
 
 public class Odd {
 	
@@ -20,14 +16,13 @@ public class Odd {
 	 * 		odd = 0.5 * 5 
 	 */
 	public static double computeOdd(Forecast weather){
-		Calendar calendar = Calendar.getInstance();
 		Date current = new Date(System.currentTimeMillis());
 		double days;
 		if(weather.getDate().getDay() - current.getDay() < 0){
 			days = 7 - current.getDay() + weather.getDate().getDay();
 		}
-		else
-			days = weather.getDate().getDay() - current.getDay(); // gerer les début fin de semaine
+		else // end of week
+			days = weather.getDate().getDay() - current.getDay();
 		if(days < 3){
 			return 1;
 		}
@@ -37,5 +32,5 @@ public class Odd {
 		else {
 			return 0.5 * days;
 		}
-	}
+	}	
 }
