@@ -44,6 +44,14 @@ public class ServicesTools {
 	public final static String SUCCESS_ANSWER = "success";
 	public final static String FAILURE_ANSWER = "failure";
 	public final static String CHALLENGE_ANSWER = "challenge";
+	
+	//
+	public final static String IDCITY_ARG = "idcity";
+	public final static String DATE_ARG = "date";
+	public final static String EVENTTYPE_ARG= "eventtype";
+	//
+	public final static String IDFRIEND_ARG="idfriend";
+	
 
 	/**
 	 * Check if there's a null in params.

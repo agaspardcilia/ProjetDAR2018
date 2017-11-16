@@ -1,10 +1,8 @@
-package services.user;
+package services.event;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,37 +12,36 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
-import annotations.AuthenticationRequiried;
-import database.exceptions.CannotConnectToDatabaseException;
-import database.exceptions.QueryFailedException;
 import services.ServicesTools;
-import services.datastructs.SearchResult;
 import services.errors.ServerErrors;
-import services.user.datastructs.User;
-
+import services.user.FriendManagement;
 /**
  * 
  * @author cb_mac
  *
  */
-@WebServlet("/user/friends/list")
-public class FriendsList extends HttpServlet {
-	private static final long serialVersionUID = 134567898376543L;
+@WebServlet("/event/list")
+public class EventsList extends HttpServlet{
+
+	private static final long serialVersionUID = 14885478L;
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		JSONObject answer = new JSONObject();
 		
 		try {
-			int iduser = Integer.parseInt(req.getParameter(ServicesTools.IDUSER_ARG));
+			int idcity= Integer.parseInt(req.getParameter(ServicesTools.IDCITY_ARG));
+			Date date =  new Date(Long.parseLong(req.getParameter(ServicesTools.DATE_ARG)));
+			int eventtype= Integer.parseInt(req.getParameter(ServicesTools.EVENTTYPE_ARG));
+			
 			int page = Integer.parseInt(req.getParameter(ServicesTools.PAGE_ARG));
 			int pageSize = Integer.parseInt(req.getParameter(ServicesTools.SIZE_ARG));
 			
 			if (page < 0 || pageSize <= 0) {
 				answer = ServicesTools.createJSONError(ServerErrors.BAD_ARGUMENT);
 			} else {
-				if (!ServicesTools.nullChecker(iduser, page, pageSize)) {	
-					answer = FriendManagement.getListFriendsJSON(iduser, page, pageSize);
+				if (!ServicesTools.nullChecker(idcity,date,eventtype, page, pageSize)) {	
+					answer = EventUtils.getEventsListJSON(idcity, date, eventtype, page, pageSize);
 				} else {
 					answer = ServicesTools.createJSONError(ServerErrors.MISSING_ARGUMENT);
 				}
@@ -55,12 +52,13 @@ public class FriendsList extends HttpServlet {
 		PrintWriter out = resp.getWriter();
 		out.write(answer.toString());
 		resp.setContentType("text/plain");
-	}
-		
-	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		this.doGet(req,resp);
+	
 	}
 	
-
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		this.doGet(req, resp);
+	}
+	
+	
 }

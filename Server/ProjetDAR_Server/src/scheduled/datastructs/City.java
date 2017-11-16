@@ -1,6 +1,15 @@
 package scheduled.datastructs;
 
-public class City {
+import org.json.JSONObject;
+
+import utils.JSONable;
+
+/**
+ * 
+ *@modify cb_mac 5/11/17 
+ *
+ */
+public class City implements JSONable{
 	private int id;
 	private String name;
 	
@@ -20,6 +29,14 @@ public class City {
 	@Override
 	public String toString() {
 		return "City[id=" + id +" ,name=" + name + "]";
+	}
+
+	@Override
+	public JSONObject toJSONObject() {
+		JSONObject result = new JSONObject();
+		result.put("id", id);
+		result.put("name", name);
+		return result;
 	}
 	
 }
