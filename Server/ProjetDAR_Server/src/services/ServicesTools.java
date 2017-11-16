@@ -30,6 +30,14 @@ public class ServicesTools {
 	public final static String QUERY_ARG 		= "query";
 	public final static String ID_ARG 			= "id";
 	public final static String USER_ARG 		= "user";
+	public final static String IDBET_ARG		= "idbet";
+	public final static String IDEVENT_ARG		= "idevent";
+	public final static String ODD_ARG 			= "odd";
+	public final static String MONEYBET_ARG 	= "moneybet";
+	public final static String DATE_ARG		 	= "date";
+
+
+
 	
 	public final static String STATUS_ANSWER = "status";
 	public final static String PAYLOAD_ANSWER = "payload";

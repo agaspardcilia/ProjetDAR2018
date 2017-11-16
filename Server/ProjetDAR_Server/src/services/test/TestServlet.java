@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import annotations.AuthenticationRequiried;
+import scheduled.EventGenerator;
+import services.bet.AddBet;
 
 @AuthenticationRequiried
 @WebServlet("/test")
@@ -19,6 +21,9 @@ public class TestServlet extends HttpServlet {
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		
+		//services.bet.Bet.addBet(idUser, idEvent, odd, moneyBet, date)
+		EventGenerator.main(null);
 		
 		String answer = "{\"Hello\" : \"world!\"}";
 		PrintWriter out = resp.getWriter();
