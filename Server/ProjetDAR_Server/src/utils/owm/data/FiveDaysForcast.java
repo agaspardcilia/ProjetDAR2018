@@ -1,5 +1,6 @@
 package utils.owm.data;
 
+import java.util.Date;
 import java.util.List;
 
 public class FiveDaysForcast {
@@ -17,5 +18,15 @@ public class FiveDaysForcast {
 	
 	public List<Forecast> getForecasts() {
 		return forecasts;
+	}
+	
+	public int findIndexForcast(Date date) {
+		int i = 0;
+		for (Forecast f : forecasts) {
+			if(f.getDate().equals(date))
+				return i;
+			i ++;
+		}
+		return -1;
 	}
 }

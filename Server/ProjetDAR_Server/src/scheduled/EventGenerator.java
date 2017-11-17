@@ -14,28 +14,28 @@ import database.exceptions.QueryFailedException;
 import scheduled.datastructs.City;
 import scheduled.datastructs.EventType;
 import scheduled.datastructs.WeatherEvent;
+import services.bet.datastruct.BetStruct;
+import services.event.EventUtils;
 import utils.Debug;
 import utils.owm.OWM;
 import utils.owm.data.FiveDaysForcast;
 import utils.owm.data.Forecast;
+import utils.owm.data.Weather;
 import utils.webapi.HttpException;
 
 public class EventGenerator implements Runnable {
 	private final static String GET_CITIES = "SELECT * FROM cities;";
-	private final static String GET_CITY_ID = "SELECT * FROM cities WHERE idcity = ?;";
-	private final static String ADD_EVENT = "INSERT INTO events (idcity, eventtype, date, lastmodif) VALUES (?, ?, ?, ?);";
-	private final static String GET_EVENT_TIME_CITY = "SELECT * FROM events WHERE idcity = ? AND date = ?;";
-	private final static String UPDATE_EVENT = "UPDATE events SET eventtype = ?, lastmodif = ? WHERE idcity = ? AND date = ?;";
+
 
 
 	private OWM owm;
-
 
 	public EventGenerator() {
 		this.owm = new OWM("eff456cdb0b08998dc93401e3b72e54c");
 	}
 
-	private List<WeatherEvent> getNewEvents(City city) throws IOException, HttpException {
+
+	public List<WeatherEvent> getNewEvents(City city) throws IOException, HttpException {
 		List<WeatherEvent> result = new ArrayList<>();
 
 		FiveDaysForcast fdf = owm.getFiveDaysForecastWeather(city.getName());
@@ -45,7 +45,7 @@ public class EventGenerator implements Runnable {
 
 			for (EventType et : EventType.values()) {
 				if (et.getName().equals(mainWeather)) {
-					WeatherEvent event = new WeatherEvent(-1, city, et, forecast.getDate());
+					WeatherEvent event = new WeatherEvent(-1, city, et, forecast.getDate(), utils.odd.Odd.computeOdd(forecast), "wait");
 
 					result.add(event);
 				}
@@ -56,7 +56,6 @@ public class EventGenerator implements Runnable {
 
 		return result;
 	}
-
 	public List<City> getMonitoredCities() throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
 		List<City> result = new ArrayList<>();
 
@@ -69,66 +68,65 @@ public class EventGenerator implements Runnable {
 		return result;
 	}
 
-	private WeatherEvent getWeatherEventFromTimeAndCity(long timestamp, int idCity) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
-		ResultSet rs = DBMapper.executeQuery(GET_EVENT_TIME_CITY, QueryType.SELECT, idCity, timestamp);
-
-		if (!rs.next())
-			return null;
-
-		WeatherEvent event = new WeatherEvent(rs.getInt("idevent"), getCityFromId(rs.getInt("idcity")),
-				EventType.getTypeFromId(rs.getInt("eventtype")), new Date(rs.getLong("date")));
-
-		return event;
-	}
-
-	public City getCityFromId(int id) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
-		ResultSet rs = DBMapper.executeQuery(GET_CITY_ID, QueryType.SELECT, id);
-
-		if (!rs.next())
-			return null;
-
-		return new City(id, rs.getString("name"));
-	}
-
-	private void addEventToDatabase(WeatherEvent event) throws CannotConnectToDatabaseException, QueryFailedException {
-		System.out.println("insert");
-		DBMapper.executeQuery(ADD_EVENT, QueryType.INSERT, event.getCity().getId(), EventType.RAIN.getId(),
-				event.getDate().getTime(), System.currentTimeMillis());
-	}
-
-	private void updateEventOnDatabase(WeatherEvent event) throws CannotConnectToDatabaseException, QueryFailedException {
-		DBMapper.executeQuery(UPDATE_EVENT, QueryType.UPDATE, event.getEventType().getId(), System.currentTimeMillis(), event.getCity().getId(),
-				event.getDate().getTime());
-	}
 
 	@Override
-	public void run() {
+	public void run() { //TODO tester le run : 
 		Debug.display_notice("Refreshing events.");
-		
+
 		try {
 			List<City> cities = getMonitoredCities();
 
 
-			for (City c : cities) {
+			for (City c : cities) { // ajout des event et maj de la cote
 				for (WeatherEvent we : getNewEvents(c)) {
-					WeatherEvent dbEvent = getWeatherEventFromTimeAndCity(we.getDate().getTime(), we.getCity().getId());
+					FiveDaysForcast fdf = owm.getFiveDaysForecastWeather(we.getCity().getName());
+					int index = fdf.findIndexForcast(we.getDate());
+					double odd = utils.odd.Odd.computeOdd(fdf.getForecasts().get(index));
+					WeatherEvent dbEvent = EventUtils.getWeatherEventFromTimeAndCity(we.getDate().getTime(), we.getCity().getId());
 					if (dbEvent == null) {
-						addEventToDatabase(we);
-					} else if (we.getEventType() != dbEvent.getEventType()) {
-						updateEventOnDatabase(we);
+						EventUtils.addEventToDatabase(we);
+					} else if(dbEvent.getEventType() != we.getEventType()) {
+						EventUtils.updateEventOnDatabase(we, odd);
 					}
 				}
 
 			}
+			for(WeatherEvent event : EventUtils.getEventsListFutur()){ //maj des cotes
+				FiveDaysForcast fdf = owm.getFiveDaysForecastWeather(event.getCity().getName());
+				int index = fdf.findIndexForcast(event.getDate());
+				double odd = utils.odd.Odd.computeOdd(fdf.getForecasts().get(index));
+				EventUtils.updateEventOnDatabase(event, odd);
+			}
+
+			for(WeatherEvent event : EventUtils.getEventsListWait()){
+				Weather mainWeather = owm.getCurrentWeather(event.getCity().getName()).getWeather();
+				String weather = mainWeather.getMain();
+				if(event.getEventType().getName() == weather){
+					event.setStatus("valid");
+				}
+				else	
+					event.setStatus("invalid");
+				EventUtils.updateEventOnDatabase(event, 1);
+
+				for(BetStruct bet : EventUtils.getBetsList(event)){
+					utils.ManagementPepet.addPepet(""+bet.getIdUser(), bet.getMoneyBet()*bet.getOdd());
+				}
+			}
+
 
 		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException | IOException | HttpException e) {
 			e.printStackTrace();
 		}
 
 	}
-	
+
+
+
 	public static void main(String[] args) {
 		System.out.println(System.currentTimeMillis());
 	}
+
+
+
 
 }
