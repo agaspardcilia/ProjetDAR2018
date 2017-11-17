@@ -2,8 +2,6 @@ package services.bet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,14 +14,13 @@ import org.json.JSONObject;
 import services.ServicesTools;
 import services.errors.ServerErrors;
 
-@WebServlet("/bet/add")
-public class AddBet extends HttpServlet {
-
+@WebServlet("/bet/addAll")
+public class PrintAllBets extends HttpServlet{
 	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 776500783079301638L;
+	private static final long serialVersionUID = 1268272280956777805L;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -32,12 +29,11 @@ public class AddBet extends HttpServlet {
 		
 		try {
 			int idUser = Integer.parseInt(req.getParameter(ServicesTools.IDUSER_ARG));
-			int idEvent = Integer.parseInt(req.getParameter(ServicesTools.IDEVENT_ARG));
-			int moneyBet = Integer.parseInt(req.getParameter(ServicesTools.MONEYBET_ARG));
-			
+			//String key = req.getParameter(ServicesTools.KEY_ARG);
 
-			if (!ServicesTools.nullChecker(idUser, idEvent, moneyBet)) {
-				answer = Bet.addBet(idUser, idEvent, moneyBet);
+
+			if (!ServicesTools.nullChecker(idUser)) {
+				answer = Bet.printAllWaitBets(idUser);
 			} else {
 				answer = ServicesTools.createJSONError(ServerErrors.MISSING_ARGUMENT);
 			}
