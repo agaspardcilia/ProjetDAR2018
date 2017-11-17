@@ -1,5 +1,6 @@
 package services.bet;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -10,7 +11,11 @@ import org.json.JSONObject;
 
 import com.mongodb.client.FindIterable;
 
+import database.DBMapper;
 import database.MongoMapper;
+import database.exceptions.CannotConnectToDatabaseException;
+import database.exceptions.QueryFailedException;
+import database.DBMapper.QueryType;
 import services.ServicesTools;
 import services.bet.datastruct.BetStruct;
 
@@ -24,23 +29,32 @@ public class Bet {
 	public final static String ODD_VALUE = "odd";
 	public final static String MONEYBET_VALUE = "moneybet";
 
+	private final static String GET_EVENT = "SELECT * FROM events WHERE idEvent = ?;";
 
-	public static JSONObject addBet(int idUser, int idEvent, int odd, int moneyBet, Date date){
+
+
+	public static JSONObject addBet(int idUser, int idEvent,int moneyBet){
 		JSONObject answer;
 		Document doc = new Document();				
 		doc.append(Bet.USER_KEY, idUser);
 		doc.append(Bet.EVENT_KEY, idEvent);
-		doc.append(Bet.ODD_VALUE, odd);
-		doc.append(Bet.MONEYBET_VALUE, moneyBet);
-		doc.append(Bet.DATE_VALUE, date);
-		
+		ResultSet res = null;
+		double odd = 1;
+		Date date = new Date();
 		try {
+			res = DBMapper.executeQuery(GET_EVENT, QueryType.SELECT, idEvent);
+			res.next();
+			odd = res.getDouble("odd");
+			date = new Date(res.getLong("date"));
+			doc.append(Bet.ODD_VALUE, odd); // requete pour recuperer cote
+			doc.append(Bet.MONEYBET_VALUE, moneyBet);
+			doc.append(Bet.DATE_VALUE, date); // idem
 			MongoMapper.executeInsertOne(BETS_COLLECTION, doc);
 			answer = ServicesTools.createPositiveAnswer();
-		} catch (SQLException | NamingException e) {
-			answer = ServicesTools.createDatabaseError(e);
-
+		} catch (SQLException | CannotConnectToDatabaseException | QueryFailedException |NamingException e1) {
+			answer = ServicesTools.createDatabaseError(e1);
 		}
+
 		return answer;
 	}
 
@@ -61,13 +75,13 @@ public class Bet {
 					);
 			answer = ServicesTools.createPositiveAnswer();
 			ServicesTools.addToPayload(answer, "result", print);
-			
+
 		} catch (SQLException | NamingException e) {
 			answer = ServicesTools.createDatabaseError(e);
 		}
-		
+
 		return answer;
 	}
-	
-	
+
+
 }

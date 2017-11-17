@@ -51,7 +51,7 @@ public class UserUtils {
 			User u = Authentication.getUserFromId(idUser);
 			result = ServicesTools.createPositiveAnswer();
 			
-			ServicesTools.addToPayload(result, ServicesTools.USER_ARG, u);
+			ServicesTools.addToPayload(result, ServicesTools.IDUSER_ARG, u);
 			
 		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException e) {
 			result = ServicesTools.createDatabaseError(e);

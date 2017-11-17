@@ -31,15 +31,13 @@ public class AddBet extends HttpServlet {
 		
 		
 		try {
-			int idUser = Integer.parseInt(req.getParameter(ServicesTools.USER_ARG));
+			int idUser = Integer.parseInt(req.getParameter(ServicesTools.IDUSER_ARG));
 			int idEvent = Integer.parseInt(req.getParameter(ServicesTools.IDEVENT_ARG));
-			int odd = Integer.parseInt(req.getParameter(ServicesTools.ODD_ARG));
 			int moneyBet = Integer.parseInt(req.getParameter(ServicesTools.MONEYBET_ARG));
-			Date date = new Date(req.getParameter(ServicesTools.DATE_ARG));
 			
 
-			if (!ServicesTools.nullChecker(idUser, idEvent, odd, moneyBet, date)) {
-				answer = Bet.addBet(idUser, idEvent, odd, moneyBet, date);
+			if (!ServicesTools.nullChecker(idUser, idEvent, moneyBet)) {
+				answer = Bet.addBet(idUser, idEvent, moneyBet);
 			} else {
 				answer = ServicesTools.createJSONError(ServerErrors.MISSING_ARGUMENT);
 			}
