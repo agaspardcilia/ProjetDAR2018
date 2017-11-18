@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.naming.NamingException;
+
 import database.DBMapper;
 import database.DBMapper.QueryType;
 import database.exceptions.CannotConnectToDatabaseException;
@@ -108,13 +110,14 @@ public class EventGenerator implements Runnable {
 					event.setStatus("invalid");
 				EventUtils.updateEventOnDatabase(event, 1);
 
+
 				for(BetStruct bet : EventUtils.getBetsList(event)){
 					utils.ManagementPepet.addPepet(""+bet.getIdUser(), bet.getMoneyBet()*bet.getOdd());
 				}
 			}
 
 
-		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException | IOException | HttpException e) {
+		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException | IOException | HttpException | NamingException e) {
 			e.printStackTrace();
 		}
 

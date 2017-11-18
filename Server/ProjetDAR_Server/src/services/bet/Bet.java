@@ -9,6 +9,7 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.json.JSONObject;
 
 import com.mongodb.client.FindIterable;
@@ -19,18 +20,14 @@ import database.exceptions.CannotConnectToDatabaseException;
 import database.exceptions.QueryFailedException;
 import database.DBMapper.QueryType;
 import services.ServicesTools;
-import services.auth.Authentication;
 import services.bet.datastruct.BetStruct;
 import services.bet.datastruct.BetsResultStruct;
-import services.social.SocialUtils;
-import services.social.datastructs.Status;
-import services.user.datastructs.User;
 
 public class Bet {
 	public final static String BETS_COLLECTION = "bets";
 	public final static String USER_KEY = "user";
 	public final static String EVENT_KEY = "event";
-	public final static String BET_KEY = "bet";
+	public final static String BET_KEY = "_id";
 
 	public final static String DATE_VALUE = "date";
 	public final static String ODD_VALUE = "odd";
@@ -40,16 +37,12 @@ public class Bet {
 
 	private final static String GET_EVENT = "SELECT * FROM events WHERE idEvent = ?;";
 
-	//***************************/
-	//TODO
-	//Requète non verfié
-
-	//*************************//
-	public static JSONObject addBet(int idUser, int idEvent,int moneyBet){
+	public static JSONObject addBet(int idUser, int idEvent, double moneyBet){
 		JSONObject answer;
 		Document doc = new Document();				
 		doc.append(Bet.USER_KEY, idUser);
 		doc.append(Bet.EVENT_KEY, idEvent);
+		doc.append(Bet.STATUS_VALUE, "wait");
 		ResultSet res = null;
 		double odd = 1;
 		Date date = new Date();
@@ -70,21 +63,23 @@ public class Bet {
 		return answer;
 	}
 
-	public static JSONObject printBet(int idBet){
+	public static JSONObject printBet(String idBet){
 		BetStruct print;
 		JSONObject answer;
 		Document args = new Document ();
 		FindIterable<Document> qResult;
-		args.append(BET_KEY, idBet);
+		ObjectId obj = new ObjectId(idBet);
+		args.append(BET_KEY, obj);
 		try {
 			qResult = MongoMapper.executeGet(BETS_COLLECTION, args, 0);
 			Document first = qResult.first();
-			print = new BetStruct(idBet, (Integer)first.get(Bet.USER_KEY), 
-					(Integer)first.get(Bet.EVENT_KEY), 
-					(Integer)first.get(Bet.ODD_VALUE), 
-					(Integer)first.get(Bet.MONEYBET_VALUE),
-					(Date)first.get(Bet.DATE_VALUE)
-					);
+			System.out.println(first);
+			print = new BetStruct(idBet, Integer.valueOf(first.get(Bet.USER_KEY).toString()), 
+					Integer.valueOf(first.get(Bet.EVENT_KEY).toString()), 
+					Double.valueOf(first.get(Bet.ODD_VALUE).toString()), 
+					Double.valueOf(first.get(Bet.MONEYBET_VALUE).toString()),
+					new Date (Long.valueOf(first.get(Bet.DATE_VALUE).toString()))
+							);
 			answer = ServicesTools.createPositiveAnswer();
 			ServicesTools.addToPayload(answer, "result", print);
 
@@ -125,15 +120,16 @@ public class Bet {
 
 	}
 
-	private static BetStruct getBetsFromDocument(Document doc) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
+	public static BetStruct getBetsFromDocument(Document doc) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
+		String id = doc.getObjectId(MongoMapper.DOC_ID).toHexString();
 
-		int idBet  = doc.getInteger(BET_KEY);
 		int idUser = doc.getInteger(USER_KEY);
 		int idEvent = doc.getInteger(EVENT_KEY);
 		double odd = doc.getDouble(ODD_VALUE);
 		double moneyBet = doc.getDouble(MONEYBET_VALUE);
-		Date date = new Date(doc.getLong(DATE_VALUE));
-		return new BetStruct(idBet, idUser, idEvent, odd, moneyBet, date);
+		Date date = doc.getDate(DATE_VALUE);
+
+		return new BetStruct(id, idUser, idEvent, odd, moneyBet, date);
 	}
 
 

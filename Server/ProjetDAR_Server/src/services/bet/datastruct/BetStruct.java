@@ -8,7 +8,7 @@ import services.ServicesTools;
 import utils.JSONable;
 
 public class BetStruct implements JSONable {
-	private int idBet;
+	private String idBet;
 	private int idUser;
 	private int idEvent;
 	private double odd;
@@ -16,7 +16,7 @@ public class BetStruct implements JSONable {
 	private Date date;
 	
 	
-	public BetStruct(int idBet, int idUser, int idEvent, double odd, double moneyBet, Date date) {
+	public BetStruct(String idBet, int idUser, int idEvent, double odd, double moneyBet, Date date) {
 		this.idBet = idBet;
 		this.idUser = idUser;
 		this.idEvent = idEvent;
@@ -25,7 +25,7 @@ public class BetStruct implements JSONable {
 		this.date = date;
 	}
 	
-	public int getIdBet() {
+	public String getIdBet() {
 		return idBet;
 	}
 	

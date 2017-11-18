@@ -7,11 +7,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.naming.NamingException;
+
+import org.bson.Document;
 import org.json.JSONObject;
 
 import com.google.common.primitives.UnsignedLong;
+import com.mongodb.client.FindIterable;
 
 import database.DBMapper;
+import database.MongoMapper;
 import database.DBMapper.QueryType;
 import database.exceptions.CannotConnectToDatabaseException;
 import database.exceptions.QueryFailedException;
@@ -19,6 +24,7 @@ import scheduled.datastructs.City;
 import scheduled.datastructs.EventType;
 import scheduled.datastructs.WeatherEvent;
 import services.ServicesTools;
+import services.bet.Bet;
 import services.bet.datastruct.BetStruct;
 import utils.owm.data.FiveDaysForcast;
 import utils.owm.data.Forecast;
@@ -44,7 +50,7 @@ public class EventUtils {
 	private final static String QUERY_LIST_WAIT_EVENT= "SELECT * FROM events WHERE date < ? AND status = 'wait' ORDER BY date;";
 	private final static String QUERY_LIST_BET= "SELECT * FROM bets WHERE  idevent = ?;";
 
-	
+
 	public static JSONObject getEventsListJSON(int idcity,Date date,int eventtype ,int page ,int pageSize) 
 	{		
 		JSONObject answer= new JSONObject();
@@ -61,13 +67,13 @@ public class EventUtils {
 	}
 
 
-//date didn't use in this version
+	//date didn't use in this version
 	public static List<WeatherEvent> getEventsList(int idcity,Date date,int eventtype,int page ,int pageSize) 
 			throws CannotConnectToDatabaseException, QueryFailedException, SQLException{
 		List<WeatherEvent> events = new ArrayList<>();
-//		if(!EventUtils.doesEventExists(idevent))
-//			return events;
-		
+		//		if(!EventUtils.doesEventExists(idevent))
+		//			return events;
+
 		ResultSet rs = DBMapper.executeQuery(QUERY_LIST_EVENT,QueryType.SELECT, idcity,date,eventtype,page,page*pageSize);
 		while(rs.next()) {
 			City city = getCityFromId(idcity);
@@ -84,7 +90,7 @@ public class EventUtils {
 		ResultSet result = DBMapper.executeQuery(QUERY_GET_EVENT, QueryType.SELECT, idevent);
 		return result.next();
 	}
-	
+
 	public static City getCityFromId(int idcity) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
 		ResultSet rs= DBMapper.executeQuery(QUERY_GET_CITY, QueryType.SELECT, idcity);
 		rs.next();
@@ -92,10 +98,10 @@ public class EventUtils {
 		return city;	
 	}
 
-	
+
 	//Add
-	
-	
+
+
 
 
 
@@ -153,7 +159,7 @@ public class EventUtils {
 		}
 		return events;
 	}
-	
+
 	public static List<WeatherEvent> getEventsListWait()
 			throws CannotConnectToDatabaseException, QueryFailedException, SQLException{
 		List<WeatherEvent> events = new ArrayList<>();
@@ -170,20 +176,19 @@ public class EventUtils {
 		return events;
 	}
 
+	//todo modify
 	public static List <BetStruct> getBetsList(WeatherEvent event) 
-			throws CannotConnectToDatabaseException, QueryFailedException, SQLException{
-		ResultSet rs = DBMapper.executeQuery(QUERY_LIST_BET, QueryType.SELECT, event.getIdEvent());
-		List<BetStruct> bets = new ArrayList<>();
+			throws NamingException, SQLException, CannotConnectToDatabaseException, QueryFailedException{
+		List<BetStruct> result = new ArrayList<>();
+		FindIterable<Document> qResult;
+		Document args = new Document();
+		args.put(Bet.EVENT_KEY, event.getIdEvent());
+		qResult = MongoMapper.executeGet("bets", args,0);
 
-		while(rs.next()) {
-			int idBet = rs.getInt("idbet");
-			int idUser = rs.getInt("iduser");
-			int idEvent = rs.getInt("idevent");
-			double odd = rs.getDouble("odd");
-			double moneyBet = rs.getDouble("moneybet");
-			Date d = new Date(rs.getLong("date"));
-			bets.add(new BetStruct(idBet, idUser, idEvent, odd, moneyBet, d));
+		for(Document d : qResult) {
+			result.add(Bet.getBetsFromDocument(d));
 		}
-		return bets;
+		return result;
 	}
+
 }

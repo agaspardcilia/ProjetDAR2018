@@ -2,8 +2,6 @@ package services.bet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -33,7 +31,7 @@ public class AddBet extends HttpServlet {
 		try {
 			int idUser = Integer.parseInt(req.getParameter(ServicesTools.IDUSER_ARG));
 			int idEvent = Integer.parseInt(req.getParameter(ServicesTools.IDEVENT_ARG));
-			int moneyBet = Integer.parseInt(req.getParameter(ServicesTools.MONEYBET_ARG));
+			double moneyBet = Double.parseDouble(req.getParameter(ServicesTools.MONEYBET_ARG));
 			
 
 			if (!ServicesTools.nullChecker(idUser, idEvent, moneyBet)) {
