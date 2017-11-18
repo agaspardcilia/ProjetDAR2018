@@ -72,7 +72,7 @@ public class WeatherEvent implements JSONable{
 		result.put("idEvent",idEvent);
 		result.put("city", city.toJSONObject());
 		result.put("eventType", eventType.toJSONObject());
-		result.put("date", date);
+		result.put("date", date.getTime());
 		
 		return result;
 	}

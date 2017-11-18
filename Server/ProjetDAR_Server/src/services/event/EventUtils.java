@@ -24,22 +24,22 @@ import scheduled.datastructs.City;
 import scheduled.datastructs.EventType;
 import scheduled.datastructs.WeatherEvent;
 import services.ServicesTools;
+import services.datastructs.SearchResult;
 import services.bet.Bet;
 import services.bet.datastruct.BetStruct;
 import utils.owm.data.FiveDaysForcast;
 import utils.owm.data.Forecast;
 import utils.webapi.HttpException;
 
-/**
- * 
- * @author cb_mac
- *
- */
 public class EventUtils {
 	//event queries 
 	//city date type
-	private final static String QUERY_LIST_EVENT=	
-			"SELECT * FROM events WHERE idcity=? AND date=? AND eventtype=? ORDER BY date LIMIT ? OFFSET ?;";
+  
+	private final static String QUERY_LIST_EVENT_AFTER =	"SELECT * FROM events WHERE idcity = ? AND date > ? ORDER BY odd DESC LIMIT ? OFFSET ?;";
+	private final static String QUERY_GET_EVENT =			"SELECT * FROM events WHERE idevent=?;";
+	private final static String QUERY_GET_CITY =			"SELECT idcity,name FROM cities WHERE idcity=?;";
+
+	private final static String QUERY_LIST_EVENT=	"SELECT * FROM events WHERE idcity=? AND date=? AND eventtype=? ORDER BY date LIMIT ? OFFSET ?;";
 	private final static String QUERY_GET_EVENT="SELECT * FROM events WHERE idevent=?;";
 	private final static String QUERY_GET_CITY="SELECT idcity,name FROM cities WHERE idcity=?;";
 	//Add
@@ -51,11 +51,28 @@ public class EventUtils {
 	private final static String QUERY_LIST_BET= "SELECT * FROM bets WHERE  idevent = ?;";
 	private final static String QUERY_GET_CITIES = 			"SELECT * FROM cities;";
 	
-	public static JSONObject getEventsListJSON(int idcity,Date date,int eventtype ,int page ,int pageSize) 
-	{		
+	public static JSONObject getAvailableCities() {
+		JSONObject answer;
+		
+		try {
+			List<City> cities = getCitiesFromDatabase();
+			
+			SearchResult sr = new SearchResult(0, cities.size(), cities);
+			
+			answer = ServicesTools.createPositiveAnswer();
+			ServicesTools.addToPayload(answer, "cities", sr);
+		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException e) {
+			answer = ServicesTools.createDatabaseError(e);
+		}
+		
+		return answer;
+	}
+	
+	
+	public static JSONObject getEventsListJSON(int idcity,Date date ,int page ,int pageSize) {		
 		JSONObject answer= new JSONObject();
 		try {
-			List<WeatherEvent> events = getEventsList(idcity,date,eventtype, page, pageSize);
+			List<WeatherEvent> events = getEventsList(idcity, date, page, pageSize);
 			EventResult er = new EventResult(page, pageSize, events);
 
 			answer = ServicesTools.createPositiveAnswer();
@@ -65,6 +82,16 @@ public class EventUtils {
 		}
 		return answer;
 	}
+	
+	/**
+	 * Returns the last 10 events.
+	 * @param idCity
+	 * @return
+	 */
+	public static JSONObject getLastEvents(int idCity) {
+		return getEventsListJSON(idCity, new Date(System.currentTimeMillis()), 0, 10);
+	}
+
 
 
 	//date didn't use in this version
@@ -83,6 +110,7 @@ public class EventUtils {
 			double odd = rs.getDouble("odd");
 			events.add(new WeatherEvent(rs.getInt("idevent"), city, eType, d, odd,  status));
 		}
+		
 		return events;
 	}
 
@@ -181,8 +209,7 @@ public class EventUtils {
 		
 		return result;
 	}
-	
-	
+
 	public static List <BetStruct> getBetsList(WeatherEvent event) 
 			throws NamingException, SQLException, CannotConnectToDatabaseException, QueryFailedException{
 		List<BetStruct> result = new ArrayList<>();
