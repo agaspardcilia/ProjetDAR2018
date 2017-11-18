@@ -61,6 +61,6 @@ public class BankUtils {
 	}
 	
 	public static void changeAccountBalance(int userId, double amount) throws CannotConnectToDatabaseException, QueryFailedException {
-		DBMapper.executeQuery(QUERY_CHANGE_BALANCE, QueryType.UPDATE, amount);
+		DBMapper.executeQuery(QUERY_CHANGE_BALANCE, QueryType.UPDATE, amount, userId);
 	}
 }
