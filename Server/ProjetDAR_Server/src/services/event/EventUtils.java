@@ -49,8 +49,8 @@ public class EventUtils {
 	private final static String QUERY_LIST_FUTUR_EVENT= "SELECT * FROM events WHERE date > ? ORDER BY date;";
 	private final static String QUERY_LIST_WAIT_EVENT= "SELECT * FROM events WHERE date < ? AND status = 'wait' ORDER BY date;";
 	private final static String QUERY_LIST_BET= "SELECT * FROM bets WHERE  idevent = ?;";
-
-
+	private final static String QUERY_GET_CITIES = 			"SELECT * FROM cities;";
+	
 	public static JSONObject getEventsListJSON(int idcity,Date date,int eventtype ,int page ,int pageSize) 
 	{		
 		JSONObject answer= new JSONObject();
@@ -97,12 +97,6 @@ public class EventUtils {
 		City city = new City(rs.getInt("idcity"),rs.getString("name"));
 		return city;	
 	}
-
-
-	//Add
-
-
-
 
 
 	public static WeatherEvent getWeatherEventFromTimeAndCity(long timestamp, int idCity) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
@@ -176,7 +170,19 @@ public class EventUtils {
 		return events;
 	}
 
-	//todo modify
+	public static List<City> getCitiesFromDatabase() throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
+		ArrayList<City> result = new ArrayList<>();
+		
+		ResultSet rs = DBMapper.executeQuery(QUERY_GET_CITIES, QueryType.SELECT);
+		
+		while (rs.next()) {
+			result.add(new City(rs.getInt("idcity"),rs.getString("name")));
+		}
+		
+		return result;
+	}
+	
+	
 	public static List <BetStruct> getBetsList(WeatherEvent event) 
 			throws NamingException, SQLException, CannotConnectToDatabaseException, QueryFailedException{
 		List<BetStruct> result = new ArrayList<>();
