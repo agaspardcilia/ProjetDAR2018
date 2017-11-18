@@ -102,12 +102,13 @@ public class EventGenerator implements Runnable {
 			}
 
 			for(WeatherEvent event : EventUtils.getEventsListWait()){
+				System.out.println("coucou");
 				Weather mainWeather = owm.getCurrentWeather(event.getCity().getName()).getWeather();
 				String weather = mainWeather.getMain();
 				if(event.getEventType().getName() == weather){
 					event.setStatus("valid");
 				}
-				else	
+				else
 					event.setStatus("invalid");
 				EventUtils.updateEventOnDatabase(event, 1);
 

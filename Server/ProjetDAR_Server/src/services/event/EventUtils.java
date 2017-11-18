@@ -45,7 +45,7 @@ public class EventUtils {
 	//Add
 	private final static String ADD_EVENT = "INSERT INTO events (idcity, eventtype, date, lastmodif) VALUES (?, ?, ?, ?);";
 	private final static String GET_EVENT_TIME_CITY = "SELECT * FROM events WHERE idcity = ? AND date = ?;";
-	private final static String UPDATE_EVENT = "UPDATE events SET eventtype = ?, lastmodif = ?, odd = ? WHERE idcity = ? AND date = ?;";
+	private final static String UPDATE_EVENT = "UPDATE events SET eventtype = ?, lastmodif = ?,status = ?, odd = ? WHERE idcity = ? AND date = ?;";
 	private final static String QUERY_LIST_FUTUR_EVENT= "SELECT * FROM events WHERE date > ? ORDER BY date;";
 	private final static String QUERY_LIST_WAIT_EVENT= "SELECT * FROM events WHERE date < ? AND status = 'wait' ORDER BY date;";
 	private final static String QUERY_LIST_BET= "SELECT * FROM bets WHERE  idevent = ?;";
@@ -124,7 +124,7 @@ public class EventUtils {
 	}
 
 	public static void updateEventOnDatabase(WeatherEvent event, double odd) throws CannotConnectToDatabaseException, QueryFailedException {
-		DBMapper.executeQuery(UPDATE_EVENT, QueryType.UPDATE, event.getEventType().getId(), System.currentTimeMillis(), odd, event.getCity().getId(),
+		DBMapper.executeQuery(UPDATE_EVENT, QueryType.UPDATE, event.getEventType().getId(), System.currentTimeMillis(),event.getStatus(), odd , event.getCity().getId(),
 				event.getDate().getTime());
 	}
 

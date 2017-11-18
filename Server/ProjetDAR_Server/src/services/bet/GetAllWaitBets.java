@@ -14,8 +14,8 @@ import org.json.JSONObject;
 import services.ServicesTools;
 import services.errors.ServerErrors;
 
-@WebServlet("/bet/getall")
-public class GetAllBets extends HttpServlet{
+@WebServlet("/bet/getallwait")
+public class GetAllWaitBets extends HttpServlet{
 	
 	/**
 	 * 
@@ -33,7 +33,7 @@ public class GetAllBets extends HttpServlet{
 
 
 			if (!ServicesTools.nullChecker(idUser)) {
-				answer = Bet.getAllBets(idUser);
+				answer = Bet.getAllWaitBets(idUser);
 			} else {
 				answer = ServicesTools.createJSONError(ServerErrors.MISSING_ARGUMENT);
 			}

@@ -100,13 +100,13 @@ public class Bet {
 		return answer;
 	}
 
-	public static JSONObject printAllWaitBets(/*String key*/ int idUser){
+	public static JSONObject getAllWaitBets(/*String key*/ int idUser){
 		Document args = new Document();
 		JSONObject answer;
 		try {
 			//int idUser = Authentication.getIdUserFromKey(key);
 			answer = ServicesTools.createPositiveAnswer();
-			ServicesTools.addToPayload(answer, "result",printAllBets(idUser,"wait"));
+			ServicesTools.addToPayload(answer, "result",getAllWaitBets2(idUser,"wait"));
 
 		} catch (SQLException | NamingException | CannotConnectToDatabaseException | QueryFailedException e) {
 			answer = ServicesTools.createDatabaseError(e);
@@ -115,12 +115,40 @@ public class Bet {
 		return answer;
 	}
 
-	public static BetsResultStruct printAllBets(int idUser, String status) throws SQLException, NamingException, CannotConnectToDatabaseException, QueryFailedException{
+	public static BetsResultStruct getAllWaitBets2(int idUser, String status) throws SQLException, NamingException, CannotConnectToDatabaseException, QueryFailedException{
 		List<BetStruct> result = new ArrayList<>();
 		Document args = new Document();
 		FindIterable<Document> qResult;
 		args.put(USER_KEY, idUser);
 		args.put(STATUS_VALUE, status);
+		qResult = MongoMapper.executeGet(BETS_COLLECTION, args, 0);
+		for(Document d : qResult) {
+			result.add(getBetsFromDocument(d));
+		}
+
+		return new BetsResultStruct(result);
+
+	}
+	
+	public static JSONObject getAllBets(/*String key*/ int idUser){
+		Document args = new Document();
+		JSONObject answer;
+		try {
+			answer = ServicesTools.createPositiveAnswer();
+			ServicesTools.addToPayload(answer, "result",getAllBets2(idUser));
+
+		} catch (SQLException | NamingException | CannotConnectToDatabaseException | QueryFailedException e) {
+			answer = ServicesTools.createDatabaseError(e);
+		}
+
+		return answer;
+	}
+	
+	public static BetsResultStruct getAllBets2(int idUser) throws SQLException, NamingException, CannotConnectToDatabaseException, QueryFailedException{
+		List<BetStruct> result = new ArrayList<>();
+		Document args = new Document();
+		FindIterable<Document> qResult;
+		args.put(USER_KEY, idUser);
 		qResult = MongoMapper.executeGet(BETS_COLLECTION, args, 0);
 		for(Document d : qResult) {
 			result.add(getBetsFromDocument(d));
