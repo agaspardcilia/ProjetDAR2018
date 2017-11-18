@@ -48,6 +48,9 @@ public class EventsListAfter extends HttpServlet{
 		} catch (NumberFormatException e) {
 			answer = ServicesTools.createJSONError(ServerErrors.BAD_ARGUMENT);
 		}
+		
+		ServicesTools.addCORSHeader(resp);
+		
 		PrintWriter out = resp.getWriter();
 		out.write(answer.toString());
 		resp.setContentType("text/plain");

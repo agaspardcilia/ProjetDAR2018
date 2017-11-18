@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
+import services.ServicesTools;
+
 @WebServlet("/event/cities")
 public class GetAvailableCities extends HttpServlet{
 
@@ -21,6 +23,9 @@ public class GetAvailableCities extends HttpServlet{
 		JSONObject answer = new JSONObject();
 
 		answer = EventUtils.getAvailableCities();
+		
+		ServicesTools.addCORSHeader(resp);
+		
 		PrintWriter out = resp.getWriter();
 		out.write(answer.toString());
 		resp.setContentType("text/plain");

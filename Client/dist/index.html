@@ -36,25 +36,22 @@
 
     <!-- Main Container -->
     <div class="container">
+      
       <!-- Events -->
-      <div class="col-xs-3">
-        <div class="row">
+      <div class="col-xs-3 event-container">
+        <div class="row event" id="event-template" style="display:none;">
           <!-- Event header -->
           <div class="row">
-            <div class="col-xs-11"><h4>Pluie Paris<small> - 7 jours restants</small></h4></div>
+            <div class="col-xs-11"><h4><span class="event-type"></span> <span class="event-city"></span><small class="event-date"></small></h4></div>
           </div>
-          <div class="row">
-              <div class="col-xs-11">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce convallis leo a sollicitudin fermentum.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce convallis leo a sollicitudin fermentum.
-              </div>
-          </div>
-          <div class="row">
+          <div class="row event-control">
             <div class="col-xs-8"></div>
             <div class="col-xs-1">
                 <button class="btn btn-info"><span class="glyphicon glyphicon-fire" aria-hidden="true"></span> Parier</button>
             </div>
           </div>
         </div>
+
       </div>
       <!-- Status -->
       <div class="col-xs-6">
@@ -135,5 +132,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> 
     <script src="bootstrap/js/bootstrap.min.js" ></script>
     <script src="bundle.js"></script>
+    <script src="moment.js"></script>
   </body>
 </html>
