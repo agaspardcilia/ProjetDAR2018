@@ -14,6 +14,7 @@ import database.exceptions.CannotConnectToDatabaseException;
 import database.exceptions.QueryFailedException;
 import services.ServicesTools;
 import services.auth.datastructs.LoginAnswer;
+import services.bank.BankUtils;
 import services.errors.ServerErrors;
 import services.user.datastructs.User;
 
@@ -126,6 +127,9 @@ public class Authentication {
 				} else { // Valid parameters
 					addUserToDB(username, password, email);
 					answer = login(username, password);
+					String key = answer.getJSONObject("payload").getJSONObject("login-answer").getString("key");
+					int userId = getIdUserFromKey(key);
+					BankUtils.createNewAccount(userId, BankUtils.DEFAULT_ACCOUNT_BALANCE);
 				}
 			} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException e) {
 				answer = ServicesTools.createDatabaseError(e);
