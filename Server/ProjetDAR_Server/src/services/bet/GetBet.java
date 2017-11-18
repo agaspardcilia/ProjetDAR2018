@@ -2,6 +2,8 @@ package services.bet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,13 +16,15 @@ import org.json.JSONObject;
 import services.ServicesTools;
 import services.errors.ServerErrors;
 
-@WebServlet("/bet/printAll")
-public class PrintAllBets extends HttpServlet{
-	
+@WebServlet("/bet/get")
+public class GetBet extends HttpServlet {
+
+	//TODO Bugge
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1268272280956777805L;
+	private static final long serialVersionUID = 8248811836419799205L;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -28,12 +32,10 @@ public class PrintAllBets extends HttpServlet{
 		
 		
 		try {
-			int idUser = Integer.parseInt(req.getParameter(ServicesTools.IDUSER_ARG));
-			//String key = req.getParameter(ServicesTools.KEY_ARG);
+			String idBet = req.getParameter(ServicesTools.IDBET_ARG);
 
-
-			if (!ServicesTools.nullChecker(idUser)) {
-				answer = Bet.printAllWaitBets(idUser);
+			if (!ServicesTools.nullChecker(idBet)) {
+				answer = Bet.printBet(idBet);
 			} else {
 				answer = ServicesTools.createJSONError(ServerErrors.MISSING_ARGUMENT);
 			}

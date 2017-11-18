@@ -16,6 +16,7 @@ import database.exceptions.QueryFailedException;
 import scheduled.datastructs.City;
 import scheduled.datastructs.EventType;
 import scheduled.datastructs.WeatherEvent;
+import services.bank.BankUtils;
 import services.bet.datastruct.BetStruct;
 import services.event.EventUtils;
 import utils.Debug;
@@ -72,7 +73,7 @@ public class EventGenerator implements Runnable {
 
 
 	@Override
-	public void run() { //TODO tester le run : 
+	public void run() { 
 		Debug.display_notice("Refreshing events.");
 
 		try {
@@ -111,8 +112,8 @@ public class EventGenerator implements Runnable {
 				EventUtils.updateEventOnDatabase(event, 1);
 
 
-				for(BetStruct bet : EventUtils.getBetsList(event)){
-					utils.ManagementPepet.addPepet(""+bet.getIdUser(), bet.getMoneyBet()*bet.getOdd());
+				for(BetStruct bet : EventUtils.getBetsList(event)){ //add pepet when it's valid
+					BankUtils.changeAccountBalance(bet.getIdUser(), bet.getMoneyBet()*bet.getOdd());
 				}
 			}
 

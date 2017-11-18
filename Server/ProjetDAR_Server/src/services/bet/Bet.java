@@ -20,8 +20,12 @@ import database.exceptions.CannotConnectToDatabaseException;
 import database.exceptions.QueryFailedException;
 import database.DBMapper.QueryType;
 import services.ServicesTools;
+import services.auth.Authentication;
+import services.bank.BankErrors;
+import services.bank.BankUtils;
 import services.bet.datastruct.BetStruct;
 import services.bet.datastruct.BetsResultStruct;
+import services.user.datastructs.User;
 
 public class Bet {
 	public final static String BETS_COLLECTION = "bets";
@@ -37,8 +41,14 @@ public class Bet {
 
 	private final static String GET_EVENT = "SELECT * FROM events WHERE idEvent = ?;";
 
-	public static JSONObject addBet(int idUser, int idEvent, double moneyBet){
+	
+	//Pas de gestion d'un utilisateur sans compte
+	public static JSONObject addBet(int idUser, int idEvent, double moneyBet) throws CannotConnectToDatabaseException, QueryFailedException, SQLException{
 		JSONObject answer;
+		if(moneyBet > BankUtils.getAccountFromUserId(idUser).getBalance()){
+			return answer = ServicesTools.createJSONError(BankErrors.NEGATIVE_AMOUNT);
+		}
+		BankUtils.changeAccountBalance(idUser, -moneyBet);
 		Document doc = new Document();				
 		doc.append(Bet.USER_KEY, idUser);
 		doc.append(Bet.EVENT_KEY, idEvent);

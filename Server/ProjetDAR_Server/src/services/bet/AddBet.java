@@ -2,6 +2,8 @@ package services.bet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.attribute.UserPrincipalLookupService;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,8 +13,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
+import database.exceptions.CannotConnectToDatabaseException;
+import database.exceptions.QueryFailedException;
 import services.ServicesTools;
 import services.errors.ServerErrors;
+import services.user.UserUtils;
 
 @WebServlet("/bet/add")
 public class AddBet extends HttpServlet {
@@ -39,7 +44,7 @@ public class AddBet extends HttpServlet {
 			} else {
 				answer = ServicesTools.createJSONError(ServerErrors.MISSING_ARGUMENT);
 			}
-		} catch(NumberFormatException e) {
+		} catch(NumberFormatException | CannotConnectToDatabaseException | QueryFailedException | SQLException e) {
 			answer = ServicesTools.createJSONError(ServerErrors.BAD_ARGUMENT);
 		}
 		
