@@ -53,7 +53,7 @@ public class AuthenticationFilter implements Filter {
 		boolean authRequired = false;
 		
 		for (String s : trackedPaths) {
-			if (req.getRequestURI().equals("/ProjetDAR_Server" + s)) {
+			if (req.getRequestURI().equals("/ProjetDAR" + s)) {
 				authRequired = true;
 				break;
 			}
