@@ -18,6 +18,7 @@ import scheduled.datastructs.City;
 import scheduled.datastructs.EventType;
 import scheduled.datastructs.WeatherEvent;
 import services.ServicesTools;
+import services.datastructs.SearchResult;
 
 /**
  * 
@@ -27,14 +28,31 @@ import services.ServicesTools;
 public class EventUtils {
 	//event queries 
 	//city date type
-	private final static String QUERY_LIST_EVENT=	
-			"SELECT * FROM events WHERE idcity=? AND date=? AND eventtype=? ORDER BY date LIMIT ? OFFSET ?;";
-	private final static String QUERY_GET_EVENT="SELECT * FROM events WHERE idevent=?;";
-	private final static String QUERY_GET_CITY="SELECT idcity,name FROM cities WHERE idcity=?;";
+	private final static String QUERY_LIST_EVENT=	"SELECT * FROM events WHERE idcity=? AND date=? AND eventtype=? ORDER BY date LIMIT ? OFFSET ?;";
+	private final static String QUERY_GET_EVENT=	"SELECT * FROM events WHERE idevent=?;";
+	private final static String QUERY_GET_CITY=		"SELECT idcity,name FROM cities WHERE idcity=?;";
 
+	private final static String QUERY_GET_CITIES = 	"SELECT * FROM cities;";
 	
-	public static JSONObject getEventsListJSON(int idcity,Date date,int eventtype ,int page ,int pageSize) 
-	{		
+	public static JSONObject getAvailableCities() {
+		JSONObject answer;
+		
+		try {
+			List<City> cities = getCitiesFromDatabase();
+			
+			SearchResult sr = new SearchResult(0, cities.size(), cities);
+			
+			answer = ServicesTools.createPositiveAnswer();
+			ServicesTools.addToPayload(answer, "cities", sr);
+		} catch (CannotConnectToDatabaseException | QueryFailedException | SQLException e) {
+			answer = ServicesTools.createDatabaseError(e);
+		}
+		
+		return answer;
+	}
+	
+	
+	public static JSONObject getEventsListJSON(int idcity,Date date,int eventtype ,int page ,int pageSize) {		
 		JSONObject answer= new JSONObject();
 		try {
 			List<WeatherEvent> events = getEventsList(idcity,date,eventtype, page, pageSize);
@@ -49,7 +67,7 @@ public class EventUtils {
 	}
 
 
-//date didn't use in this version
+	// Date is not being use in this version.
 	public static List<WeatherEvent> getEventsList(int idcity,Date date,int eventtype,int page ,int pageSize) 
 			throws CannotConnectToDatabaseException, QueryFailedException, SQLException{
 		List<WeatherEvent> events = new ArrayList<>();
@@ -78,4 +96,16 @@ public class EventUtils {
 		return city;	
 	}
 
+	
+	public static List<City> getCitiesFromDatabase() throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
+		ArrayList<City> result = new ArrayList<>();
+		
+		ResultSet rs = DBMapper.executeQuery(QUERY_GET_CITIES, QueryType.SELECT);
+		
+		while (rs.next()) {
+			result.add(new City(rs.getInt("idcity"),rs.getString("name")));
+		}
+		
+		return result;
+	}
 }
