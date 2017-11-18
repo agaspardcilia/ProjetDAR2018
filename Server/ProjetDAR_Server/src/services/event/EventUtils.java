@@ -36,10 +36,8 @@ public class EventUtils {
 	//city date type
   
 	private final static String QUERY_LIST_EVENT_AFTER =	"SELECT * FROM events WHERE idcity = ? AND date > ? ORDER BY odd DESC LIMIT ? OFFSET ?;";
-	private final static String QUERY_GET_EVENT =			"SELECT * FROM events WHERE idevent=?;";
-	private final static String QUERY_GET_CITY =			"SELECT idcity,name FROM cities WHERE idcity=?;";
 
-	private final static String QUERY_LIST_EVENT=	"SELECT * FROM events WHERE idcity=? AND date=? AND eventtype=? ORDER BY date LIMIT ? OFFSET ?;";
+	private final static String QUERY_LIST_EVENT=	"SELECT * FROM events WHERE idcity=? AND date=? ORDER BY date LIMIT ? OFFSET ?;";
 	private final static String QUERY_GET_EVENT="SELECT * FROM events WHERE idevent=?;";
 	private final static String QUERY_GET_CITY="SELECT idcity,name FROM cities WHERE idcity=?;";
 	//Add
@@ -72,7 +70,7 @@ public class EventUtils {
 	public static JSONObject getEventsListJSON(int idcity,Date date ,int page ,int pageSize) {		
 		JSONObject answer= new JSONObject();
 		try {
-			List<WeatherEvent> events = getEventsList(idcity, date, page, pageSize);
+			List<WeatherEvent> events = getEventsList(idcity, date, 1,  page, pageSize);
 			EventResult er = new EventResult(page, pageSize, events);
 
 			answer = ServicesTools.createPositiveAnswer();
@@ -88,20 +86,17 @@ public class EventUtils {
 	 * @param idCity
 	 * @return
 	 */
-	public static JSONObject getLastEvents(int idCity) {
+	public static JSONObject getLastEvents(int idCity) { // warning 
 		return getEventsListJSON(idCity, new Date(System.currentTimeMillis()), 0, 10);
 	}
 
 
 
 	//date didn't use in this version
-	public static List<WeatherEvent> getEventsList(int idcity,Date date,int eventtype,int page ,int pageSize) 
+	public static List<WeatherEvent> getEventsList(int idcity, Date date, int eventtype, int page, int pageSize) 
 			throws CannotConnectToDatabaseException, QueryFailedException, SQLException{
 		List<WeatherEvent> events = new ArrayList<>();
-		//		if(!EventUtils.doesEventExists(idevent))
-		//			return events;
-
-		ResultSet rs = DBMapper.executeQuery(QUERY_LIST_EVENT,QueryType.SELECT, idcity,date,eventtype,page,page*pageSize);
+		ResultSet rs = DBMapper.executeQuery(QUERY_LIST_EVENT,QueryType.SELECT, idcity,date,page,page*pageSize);
 		while(rs.next()) {
 			City city = getCityFromId(idcity);
 			EventType eType=EventType.getTypeFromId(eventtype) ;
