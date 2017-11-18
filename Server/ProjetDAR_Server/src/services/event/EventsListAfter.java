@@ -20,8 +20,8 @@ import services.user.FriendManagement;
  * @author cb_mac
  *
  */
-@WebServlet("/event/list")
-public class EventsList extends HttpServlet{
+@WebServlet("/event/after")
+public class EventsListAfter extends HttpServlet{
 
 	private static final long serialVersionUID = 14885478L;
 	
@@ -32,7 +32,6 @@ public class EventsList extends HttpServlet{
 		try {
 			int idcity= Integer.parseInt(req.getParameter(ServicesTools.IDCITY_ARG));
 			Date date =  new Date(Long.parseLong(req.getParameter(ServicesTools.DATE_ARG)));
-			int eventtype= Integer.parseInt(req.getParameter(ServicesTools.EVENTTYPE_ARG));
 			
 			int page = Integer.parseInt(req.getParameter(ServicesTools.PAGE_ARG));
 			int pageSize = Integer.parseInt(req.getParameter(ServicesTools.SIZE_ARG));
@@ -40,8 +39,8 @@ public class EventsList extends HttpServlet{
 			if (page < 0 || pageSize <= 0) {
 				answer = ServicesTools.createJSONError(ServerErrors.BAD_ARGUMENT);
 			} else {
-				if (!ServicesTools.nullChecker(idcity,date,eventtype, page, pageSize)) {	
-					answer = EventUtils.getEventsListJSON(idcity, date, eventtype, page, pageSize);
+				if (!ServicesTools.nullChecker(idcity, date, page, pageSize)) {	
+					answer = EventUtils.getEventsListJSON(idcity, date, page, pageSize);
 				} else {
 					answer = ServicesTools.createJSONError(ServerErrors.MISSING_ARGUMENT);
 				}
