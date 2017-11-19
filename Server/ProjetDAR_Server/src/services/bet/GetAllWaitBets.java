@@ -29,8 +29,6 @@ public class GetAllWaitBets extends HttpServlet{
 		
 		try {
 			int idUser = Integer.parseInt(req.getParameter(ServicesTools.IDUSER_ARG));
-			//String key = req.getParameter(ServicesTools.KEY_ARG);
-
 
 			if (!ServicesTools.nullChecker(idUser)) {
 				answer = Bet.getAllWaitBets(idUser);

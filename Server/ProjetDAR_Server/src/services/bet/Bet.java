@@ -20,12 +20,10 @@ import database.exceptions.CannotConnectToDatabaseException;
 import database.exceptions.QueryFailedException;
 import database.DBMapper.QueryType;
 import services.ServicesTools;
-import services.auth.Authentication;
 import services.bank.BankErrors;
 import services.bank.BankUtils;
 import services.bet.datastruct.BetStruct;
 import services.bet.datastruct.BetsResultStruct;
-import services.user.datastructs.User;
 
 public class Bet {
 	public final static String BETS_COLLECTION = "bets";
@@ -42,7 +40,12 @@ public class Bet {
 	private final static String GET_EVENT = "SELECT * FROM events WHERE idEvent = ?;";
 
 	
-	//Pas de gestion d'un utilisateur sans compte
+	/**
+	 * add a bet to the database
+	 * @param  idUser, idEvent, moneyBet
+	 * @return
+	 */
+	
 	public static JSONObject addBet(int idUser, int idEvent, double moneyBet) throws CannotConnectToDatabaseException, QueryFailedException, SQLException{
 		JSONObject answer;
 		if(moneyBet > BankUtils.getAccountFromUserId(idUser).getBalance()){
@@ -73,7 +76,12 @@ public class Bet {
 		return answer;
 	}
 
-	public static JSONObject printBet(String idBet){
+	/**
+	 * Returns a bet associate to an idBet
+	 * @param idBet
+	 * @return
+	 */
+	public static JSONObject getBet(String idBet){
 		BetStruct print;
 		JSONObject answer;
 		Document args = new Document ();
@@ -100,11 +108,14 @@ public class Bet {
 		return answer;
 	}
 
-	public static JSONObject getAllWaitBets(/*String key*/ int idUser){
-		Document args = new Document();
+	/**
+	 * Returns all Wait bets of an user
+	 * @param idUser
+	 * @return
+	 */
+	public static JSONObject getAllWaitBets(int idUser){
 		JSONObject answer;
 		try {
-			//int idUser = Authentication.getIdUserFromKey(key);
 			answer = ServicesTools.createPositiveAnswer();
 			ServicesTools.addToPayload(answer, "result",getAllWaitBets2(idUser,"wait"));
 
@@ -115,6 +126,11 @@ public class Bet {
 		return answer;
 	}
 
+	/**
+	 * Construct and returns the list bets structure
+	 * @param idUser, status
+	 * @return
+	 */
 	public static BetsResultStruct getAllWaitBets2(int idUser, String status) throws SQLException, NamingException, CannotConnectToDatabaseException, QueryFailedException{
 		List<BetStruct> result = new ArrayList<>();
 		Document args = new Document();
@@ -130,8 +146,13 @@ public class Bet {
 
 	}
 	
-	public static JSONObject getAllBets(/*String key*/ int idUser){
-		Document args = new Document();
+	
+	/**
+	 * Returns all bets of an user
+	 * @param idUser
+	 * @return
+	 */
+	public static JSONObject getAllBets(int idUser){
 		JSONObject answer;
 		try {
 			answer = ServicesTools.createPositiveAnswer();
@@ -144,6 +165,11 @@ public class Bet {
 		return answer;
 	}
 	
+	/**
+	 * Construct and returns the list of bets structure
+	 * @param idUser, status
+	 * @return
+	 */
 	public static BetsResultStruct getAllBets2(int idUser) throws SQLException, NamingException, CannotConnectToDatabaseException, QueryFailedException{
 		List<BetStruct> result = new ArrayList<>();
 		Document args = new Document();
@@ -157,7 +183,12 @@ public class Bet {
 		return new BetsResultStruct(result);
 
 	}
-
+	
+	/**
+	 * Construct and returns the bets structure
+	 * @param doc
+	 * @return
+	 */
 	public static BetStruct getBetsFromDocument(Document doc) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
 		String id = doc.getObjectId(MongoMapper.DOC_ID).toHexString();
 

@@ -1,6 +1,5 @@
 package services.event;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -12,7 +11,6 @@ import javax.naming.NamingException;
 import org.bson.Document;
 import org.json.JSONObject;
 
-import com.google.common.primitives.UnsignedLong;
 import com.mongodb.client.FindIterable;
 
 import database.DBMapper;
@@ -27,28 +25,29 @@ import services.ServicesTools;
 import services.datastructs.SearchResult;
 import services.bet.Bet;
 import services.bet.datastruct.BetStruct;
-import utils.owm.data.FiveDaysForcast;
-import utils.owm.data.Forecast;
-import utils.webapi.HttpException;
 
 public class EventUtils {
-	//event queries 
-	//city date type
+
   
-	private final static String QUERY_LIST_EVENT_AFTER =	"SELECT * FROM events WHERE idcity = ? AND date > ? ORDER BY odd DESC LIMIT ? OFFSET ?;";
 
 	private final static String QUERY_LIST_EVENT=	"SELECT * FROM events WHERE idcity=? AND date=? ORDER BY date LIMIT ? OFFSET ?;";
 	private final static String QUERY_GET_EVENT="SELECT * FROM events WHERE idevent=?;";
 	private final static String QUERY_GET_CITY="SELECT idcity,name FROM cities WHERE idcity=?;";
-	//Add
-	private final static String ADD_EVENT = "INSERT INTO events (idcity, eventtype, date, lastmodif) VALUES (?, ?, ?, ?);";
-	private final static String GET_EVENT_TIME_CITY = "SELECT * FROM events WHERE idcity = ? AND date = ?;";
-	private final static String UPDATE_EVENT = "UPDATE events SET eventtype = ?, lastmodif = ?,status = ?, odd = ? WHERE idcity = ? AND date = ?;";
+
+	private final static String QUERY_ADD_EVENT = "INSERT INTO events (idcity, eventtype, date, lastmodif) VALUES (?, ?, ?, ?);";
+	private final static String QUERY_GET_EVENT_TIME_CITY = "SELECT * FROM events WHERE idcity = ? AND date = ?;";
+	private final static String QUERY_UPDATE_EVENT = "UPDATE events SET eventtype = ?, lastmodif = ?,status = ?, odd = ? WHERE idcity = ? AND date = ?;";
 	private final static String QUERY_LIST_FUTUR_EVENT= "SELECT * FROM events WHERE date > ? ORDER BY date;";
+	private final static String QUERY_LIST_PAST_EVENT= "SELECT * FROM events WHERE date < ? ORDER BY date;";
 	private final static String QUERY_LIST_WAIT_EVENT= "SELECT * FROM events WHERE date < ? AND status = 'wait' ORDER BY date;";
-	private final static String QUERY_LIST_BET= "SELECT * FROM bets WHERE  idevent = ?;";
 	private final static String QUERY_GET_CITIES = 			"SELECT * FROM cities;";
 	
+	
+	/**
+	 * Returns the cities
+	 * @param 
+	 * @return
+	 */
 	public static JSONObject getAvailableCities() {
 		JSONObject answer;
 		
@@ -66,8 +65,12 @@ public class EventUtils {
 		return answer;
 	}
 	
-	
-	public static JSONObject getEventsListJSON(int idcity,Date date ,int page ,int pageSize) {		
+	/**
+	 * Returns a list of events associate to a city and a date
+	 * @param idCity, date, page, pageSize
+	 * @return
+	 */
+	public static JSONObject getEventsListJSON(int idcity, Date date, int page, int pageSize) {		
 		JSONObject answer= new JSONObject();
 		try {
 			List<WeatherEvent> events = getEventsList(idcity, date, 1,  page, pageSize);
@@ -92,11 +95,15 @@ public class EventUtils {
 
 
 
-	//date didn't use in this version
+	/**
+	 * Returns a list of events associate to a city and a date
+	 * @param idCity, date, page, pageSize
+	 * @return
+	 */
 	public static List<WeatherEvent> getEventsList(int idcity, Date date, int eventtype, int page, int pageSize) 
 			throws CannotConnectToDatabaseException, QueryFailedException, SQLException{
 		List<WeatherEvent> events = new ArrayList<>();
-		ResultSet rs = DBMapper.executeQuery(QUERY_LIST_EVENT,QueryType.SELECT, idcity,date,page,page*pageSize);
+		ResultSet rs = DBMapper.executeQuery(QUERY_LIST_EVENT, QueryType.SELECT, idcity, date, page, page*pageSize);
 		while(rs.next()) {
 			City city = getCityFromId(idcity);
 			EventType eType=EventType.getTypeFromId(eventtype) ;
@@ -109,11 +116,21 @@ public class EventUtils {
 		return events;
 	}
 
+	/**
+	 * Returns true if idevent exist in database and false if idevent is not in the database
+	 * @param idevent
+	 * @return
+	 */
 	public static boolean doesEventExists(int idevent) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
 		ResultSet result = DBMapper.executeQuery(QUERY_GET_EVENT, QueryType.SELECT, idevent);
 		return result.next();
 	}
 
+	/**
+	 * Returns a list of events associate to a city and a date
+	 * @param idCity
+	 * @return
+	 */
 	public static City getCityFromId(int idcity) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
 		ResultSet rs= DBMapper.executeQuery(QUERY_GET_CITY, QueryType.SELECT, idcity);
 		rs.next();
@@ -123,7 +140,7 @@ public class EventUtils {
 
 
 	public static WeatherEvent getWeatherEventFromTimeAndCity(long timestamp, int idCity) throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
-		ResultSet rs = DBMapper.executeQuery(GET_EVENT_TIME_CITY, QueryType.SELECT, idCity, timestamp);
+		ResultSet rs = DBMapper.executeQuery(QUERY_GET_EVENT_TIME_CITY, QueryType.SELECT, idCity, timestamp);
 
 		if (!rs.next())
 			return null;
@@ -134,17 +151,32 @@ public class EventUtils {
 		return event;
 	}
 
+	/**
+	 * create a new event in database
+	 * @param event
+	 * @return
+	 */
 	public static void addEventToDatabase(WeatherEvent event) throws CannotConnectToDatabaseException, QueryFailedException {
 		System.out.println("insert");
-		DBMapper.executeQuery(ADD_EVENT, QueryType.INSERT, event.getCity().getId(), EventType.RAIN.getId(),
+		DBMapper.executeQuery(QUERY_ADD_EVENT, QueryType.INSERT, event.getCity().getId(), EventType.RAIN.getId(),
 				event.getDate().getTime(), System.currentTimeMillis());
 	}
-
+	
+	/**
+	 * Update the odd of an event
+	 * @param event, odd
+	 * @return
+	 */
 	public static void updateEventOnDatabase(WeatherEvent event, double odd) throws CannotConnectToDatabaseException, QueryFailedException {
-		DBMapper.executeQuery(UPDATE_EVENT, QueryType.UPDATE, event.getEventType().getId(), System.currentTimeMillis(),event.getStatus(), odd , event.getCity().getId(),
+		DBMapper.executeQuery(QUERY_UPDATE_EVENT, QueryType.UPDATE, event.getEventType().getId(), System.currentTimeMillis(),event.getStatus(), odd , event.getCity().getId(),
 				event.getDate().getTime());
 	}
 
+	/**
+	 * Returns a list of unfinish events
+	 * @param 
+	 * @return
+	 */
 	public static List<WeatherEvent> getEventsListFutur()
 			throws CannotConnectToDatabaseException, QueryFailedException, SQLException{
 		List<WeatherEvent> events = new ArrayList<>();
@@ -161,11 +193,16 @@ public class EventUtils {
 		return events;
 	}
 
+	/**
+	 * Returns a list of finish events
+	 * @param 
+	 * @return
+	 */
 	public static List<WeatherEvent> getEventsPast()
 			throws CannotConnectToDatabaseException, QueryFailedException, SQLException{
 		List<WeatherEvent> events = new ArrayList<>();
 
-		ResultSet rs = DBMapper.executeQuery(QUERY_LIST_FUTUR_EVENT, QueryType.SELECT, System.currentTimeMillis());
+		ResultSet rs = DBMapper.executeQuery(QUERY_LIST_PAST_EVENT, QueryType.SELECT, System.currentTimeMillis());
 		while(rs.next()) {
 			City city = getCityFromId(rs.getInt("idcity"));
 			EventType eType = EventType.getTypeFromId(rs.getInt("eventtype")) ;
@@ -176,7 +213,11 @@ public class EventUtils {
 		}
 		return events;
 	}
-
+	/**
+	 * Returns a list status="wait" events
+	 * @param 
+	 * @return
+	 */
 	public static List<WeatherEvent> getEventsListWait()
 			throws CannotConnectToDatabaseException, QueryFailedException, SQLException{
 		List<WeatherEvent> events = new ArrayList<>();
@@ -193,6 +234,11 @@ public class EventUtils {
 		return events;
 	}
 
+	/**
+	 * Returns a list of cities
+	 * @param 
+	 * @return
+	 */
 	public static List<City> getCitiesFromDatabase() throws CannotConnectToDatabaseException, QueryFailedException, SQLException {
 		ArrayList<City> result = new ArrayList<>();
 		
@@ -205,6 +251,11 @@ public class EventUtils {
 		return result;
 	}
 
+	/**
+	 * Returns a bets associate to an event
+	 * @param 
+	 * @return
+	 */
 	public static List <BetStruct> getBetsList(WeatherEvent event) 
 			throws NamingException, SQLException, CannotConnectToDatabaseException, QueryFailedException{
 		List<BetStruct> result = new ArrayList<>();
